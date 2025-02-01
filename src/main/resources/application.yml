@@ -9,9 +9,9 @@ spring:
   jpa:
     properties:
       hibernate:
-        show_sql: ${JPA_IS_SHOW_SQL:false}
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+        show_sql: ${JPA_IS_SHOW_SQL:true}
+        dialect: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: validate
 server:
-  port: 8085
+  port: 8084
