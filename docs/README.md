@@ -59,3 +59,4 @@ rev -> GitLab: 7 merged
 
 @enduml
 ```
+![Описание изображения](plantuml-hive.png)
