@@ -1,7 +1,8 @@
 package com.notification.service.model;
 
 public enum TaskStatus {
-    WILL_DO,
+    OPEN,
+    IN_PROGRESS,
     CLOSED,
     REVIEW,
     NEED_INFORMATION

@@ -13,7 +13,7 @@ public class CreateTaskDto {
 
     private String status;
 
-    private long developer_id;
+    private long developerId;
 
-    private long reviewer_id;
+    private long reviewerId;
 }

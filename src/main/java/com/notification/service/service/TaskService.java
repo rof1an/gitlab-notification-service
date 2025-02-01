@@ -2,12 +2,14 @@ package com.notification.service.service;
 
 import com.notification.service.entity.Task;
 import com.notification.service.model.TaskStatus;
+import com.notification.service.model.UserRole;
 import com.notification.service.repository.TaskRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,54 +21,44 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    public List<Task> getMyDevelopTasks(long developerId) {
-        List<Task> tasks = taskRepository.findAllByDeveloperId(developerId);
+    public List<Task> getTasksByUser(Long id, UserRole role) {
+        if (Optional.ofNullable(role).isPresent()) {
+            if (role.equals(UserRole.DEVELOPER)) {
+                List<Task> tasks = taskRepository.findAllByDeveloperId(id);
+                logTasks(tasks);
 
-        tasks.forEach(task -> {
-            String logMessage = String.format("""
-                             Новая задача на проверку!
-                             Название: %s
-                             Разработчик: %s
-                             Проверяющий: %s
-                             Ссылка на MR: %s
-                             Статус: %s
-                            """,
-                    task.getTitle(),
-                    task.getDeveloper().getUsername(),
-                    task.getReviewer().getUsername(),
-                    task.getLinkToMr(),
-                    task.getStatus()
-            );
+                return tasks;
+            }
 
-            System.out.println(logMessage);
-        });
+            if (role.equals(UserRole.REVIEWER)) {
+                List<Task> tasks = taskRepository.findAllByReviewerId(id);
+                logTasks(tasks);
+                return tasks;
+            }
+        }
 
-        return tasks;
+        return taskRepository.findAll();
     }
 
-    public List<Task> getMyReviewTasks(long developerId) {
-        List<Task> tasks = taskRepository.findAllByReviewerId(developerId);
+    private void logTasks(List<Task> tasks) {
+        tasks.forEach(task -> System.out.println(formatLogMessage(task)));
+    }
 
-        tasks.forEach(task -> {
-            String logMessage = String.format("""
-                             Получен новый MR!
-                             Название: %s
-                             Разработчик: %s
-                             Проверяющий: %s
-                             Ссылка на MR: %s
-                             Статус: %s
-                            """,
-                    task.getTitle(),
-                    task.getDeveloper().getUsername(),
-                    task.getReviewer().getUsername(),
-                    task.getLinkToMr(),
-                    task.getStatus()
-            );
-
-            System.out.println(logMessage);
-        });
-
-        return tasks;
+    private String formatLogMessage(Task task) {
+        return String.format("""
+                        Получен новый MR!
+                        Название: %s
+                        Разработчик: %s
+                        Проверяющий: %s
+                        Ссылка на MR: %s
+                        Статус: %s
+                        """,
+                task.getTitle(),
+                task.getDeveloper().getUsername(),
+                task.getReviewer().getUsername(),
+                task.getLinkToMr(),
+                task.getStatus()
+        );
     }
 
     public Task getTaskById(long id) {

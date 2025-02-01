@@ -5,6 +5,7 @@ import com.notification.service.dto.TaskDto;
 import com.notification.service.entity.Task;
 import com.notification.service.mapper.TaskMapper;
 import com.notification.service.model.TaskStatus;
+import com.notification.service.model.UserRole;
 import com.notification.service.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "api/v1/tasks")
+@RequestMapping(path = "api/tasks")
 @RequiredArgsConstructor
 public class TaskController {
 
@@ -31,18 +32,12 @@ public class TaskController {
         return mapper.toDtoList(tasks);
     }
 
-    @GetMapping("/{id}/develop-tasks")
-    public List<TaskDto> getMyTasksOnDevelop(@PathVariable("id") Long id) {
-        List<Task> tasks = taskService.getMyDevelopTasks(id);
+    @GetMapping("/{id}/tasks")
+    public List<TaskDto> getTasksByUser(@PathVariable("id") Long id,
+                                        @RequestParam(value = "status", required = false) UserRole role) {
+        List<Task> tasks = taskService.getTasksByUser(id, role);
         return mapper.toDtoList(tasks);
     }
-
-    @GetMapping("/{id}/review-tasks")
-    public List<TaskDto> getMyTasksOnReview(@PathVariable("id") Long id) {
-        List<Task> tasks = taskService.getMyReviewTasks(id);
-        return mapper.toDtoList(tasks);
-    }
-
 
     @GetMapping("/{id}")
     public TaskDto getTaskById(@PathVariable("id") Long id) {
