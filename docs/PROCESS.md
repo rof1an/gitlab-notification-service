@@ -45,4 +45,5 @@
 
 ## 2. Диаграмма последовательности
 [код диаграммы](process.puml)
+
 ![diagram](plantuml-process.png)
