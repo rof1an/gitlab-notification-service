@@ -7,7 +7,7 @@ services:
       context: ..
       dockerfile: ./deployment/Dockerfile
     ports:
-      - "9095:8080"
+      - "9095:8085"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://hive-service-data:${DB_PORT}/${DB_NAME}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USERNAME}

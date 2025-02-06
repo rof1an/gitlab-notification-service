@@ -5,5 +5,6 @@ public enum TaskStatus {
     IN_PROGRESS,
     CLOSED,
     REVIEW,
-    NEED_INFORMATION
+    NEED_INFORMATION,
+    NEED_FIXES
 }
