@@ -17,8 +17,15 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
 
-    public Task createFakeTask(Task task) {
+    public Task createTask(Task task) {
+        task.setStatus(TaskStatus.OPEN);
         return taskRepository.save(task);
+    }
+
+    public Task mergedTask(Long id) {
+        Task taskById = getTaskById(id);
+        taskById.setStatus(TaskStatus.CLOSED);
+        return taskRepository.save(taskById);
     }
 
     public List<Task> getTasksByUser(Long id, UserRole role) {

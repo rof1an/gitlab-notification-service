@@ -22,8 +22,14 @@ public class TaskController {
 
     @PostMapping
     public TaskDto createTask(@RequestBody CreateTaskDto taskDto) {
-        Task savedTask = taskService.createFakeTask(mapper.toModel(taskDto));
+        Task savedTask = taskService.createTask(mapper.toModel(taskDto));
         return mapper.toDto(savedTask);
+    }
+
+    @PostMapping("/{id}/merge")
+    public TaskDto mergedTask(@PathVariable("id") Long id) {
+        Task mergedTask = taskService.mergedTask(id);
+        return mapper.toDto(mergedTask);
     }
 
     @GetMapping
