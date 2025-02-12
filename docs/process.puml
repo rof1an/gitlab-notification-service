@@ -13,7 +13,7 @@ dev -> gl: 1. Push new changes
 dev -> gl: 2. New MergeRequest
 gl [#red]--> sys: 3. On new MergeRequest (webhook)
 sys -> sys: 4. Created task, status "open"
-sys -> tg: 6. New MergeRequest. /notify that new changes pushed
+sys -> tg: 5. New MergeRequest. /notify that new changes pushed
 tg -> dev: 6. /notify reviewer that new changes pushed
 dev -> tg: 7. /notify that new changes pushed
 tg -> sys: 8. notified that new changes pushed
