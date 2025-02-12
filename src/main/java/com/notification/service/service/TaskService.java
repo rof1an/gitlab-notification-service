@@ -1,0 +1,87 @@
+package com.notification.service.service;
+
+import com.notification.service.entity.Task;
+import com.notification.service.model.TaskStatus;
+import com.notification.service.model.UserRole;
+import com.notification.service.repository.TaskRepository;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+public class TaskService {
+
+    private final TaskRepository taskRepository;
+
+    public Task createTask(Task task) {
+        task.setStatus(TaskStatus.OPEN);
+        return taskRepository.save(task);
+    }
+
+    public Task mergedTask(Long id) {
+        Task taskById = getTaskById(id);
+        taskById.setStatus(TaskStatus.CLOSED);
+        return taskRepository.save(taskById);
+    }
+
+    public List<Task> getTasksByUser(Long id, UserRole role) {
+        if (Optional.ofNullable(role).isPresent()) {
+            if (role.equals(UserRole.DEVELOPER)) {
+                List<Task> tasks = taskRepository.findAllByDeveloperId(id);
+                logTasks(tasks);
+
+                return tasks;
+            }
+
+            if (role.equals(UserRole.REVIEWER)) {
+                List<Task> tasks = taskRepository.findAllByReviewerId(id);
+                logTasks(tasks);
+                return tasks;
+            }
+        }
+
+        return taskRepository.findAll();
+    }
+
+    private void logTasks(List<Task> tasks) {
+        tasks.forEach(task -> System.out.println(formatLogMessage(task)));
+    }
+
+    private String formatLogMessage(Task task) {
+        return String.format("""
+                        Получен новый MR!
+                        Название: %s
+                        Разработчик: %s
+                        Проверяющий: %s
+                        Ссылка на MR: %s
+                        Статус: %s
+                        """,
+                task.getTitle(),
+                task.getDeveloper().getUsername(),
+                task.getReviewer().getUsername(),
+                task.getLinkToMr(),
+                task.getStatus()
+        );
+    }
+
+    public Task getTaskById(long id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Task with id " + id + " not found"));
+    }
+
+    public List<Task> getAllTasks() {
+        return taskRepository.findAll();
+    }
+
+    public Task updateTaskStatus(long id, TaskStatus status) {
+        Task taskById = taskRepository.findById(id).
+                orElseThrow(() -> new EntityNotFoundException("Task with id " + id + " not found"));
+
+        taskById.setStatus(status);
+        return taskRepository.save(taskById);
+    }
+}
