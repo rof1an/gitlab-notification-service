@@ -4,6 +4,7 @@ import com.notification.service.entity.Task;
 import com.notification.service.model.TaskStatus;
 import com.notification.service.model.UserRole;
 import com.notification.service.repository.TaskRepository;
+import com.notification.service.telegram.TelegramStub;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,8 @@ import java.util.Optional;
 public class TaskService {
 
     private final TaskRepository taskRepository;
+
+    private final TelegramStub telegramStub;
 
     public Task createTask(Task task) {
         task.setStatus(TaskStatus.OPEN);
@@ -83,5 +86,22 @@ public class TaskService {
 
         taskById.setStatus(status);
         return taskRepository.save(taskById);
+    }
+
+    public void notifyDeveloperTasks(Long userId) {
+        List<Task> tasks = taskRepository.findAllByDeveloperId(userId);
+        List<Task> openTasks = tasks.stream()
+                .filter(task -> task.getStatus() != TaskStatus.CLOSED)
+                .toList();
+
+        telegramStub.getDeveloperMessage(openTasks);
+    }
+
+    public void notifyReviewer() {
+        telegramStub.notifySystem();
+    }
+
+    public void getReviewerMessage(List<Task> tasks){
+        telegramStub.getReviewerMessage(tasks);
     }
 }
