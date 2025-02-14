@@ -26,19 +26,14 @@ public class TaskController {
         return mapper.toDto(savedTask);
     }
 
-    @PostMapping("/{developerId}/notify-developer/{taskId}")
-    public void notifyDeveloperTasks(@PathVariable("developerId") Long developerId, @PathVariable("taskId") Long taskId) {
-        taskService.notifyDeveloperTask(developerId, taskId);
+    @PostMapping("/{taskId}/notify/developer")
+    public void notifyDeveloper(@PathVariable("taskId") Long taskId) {
+        taskService.notifyDeveloperTask(taskId);
     }
 
-    @PostMapping("/notify-system")
-    public void notifySystem() {
-        taskService.notifyReviewer();
-    }
-
-    @PostMapping("/{reviewerId}/notify-reviewer")
-    public void notifyReviewerTasks(@RequestBody Long taskId, @PathVariable("reviewerId") Long reviewerId) {
-        taskService.getReviewerMessage(taskId);
+    @PostMapping("/{taskId}/notify/reviewer")
+    public void notifyReviewer(@PathVariable("taskId") Long taskId) {
+        taskService.notifyReviewerTask(taskId);
     }
 
     @PostMapping("/{taskId}/merge")

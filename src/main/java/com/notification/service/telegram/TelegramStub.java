@@ -1,39 +1,44 @@
 package com.notification.service.telegram;
 
 import com.notification.service.entity.Task;
-import com.notification.service.service.TaskService;
-import com.notification.service.util.MergeRequestDataPrints;
+import com.notification.service.model.UserRole;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 @Component
 @RequiredArgsConstructor
 public class TelegramStub {
 
-    @Lazy
-    private final TaskService taskService; // TODO - убрать цикл. зависимость
-
-    private final RestTemplate restTemplate = new RestTemplate();
-
-    private static final String SYSTEM_URL = "http://localhost:8085/api/tasks";
-
-    private Task task = new Task();
-
-    public void getDeveloperMessage(Task newTask) {
-        MergeRequestDataPrints.notifyToDeveloperTelegram(newTask);
-        this.task = new Task(newTask);
+    public void sendDeveloperMessage(Task newTask) {
+        DataPrint.notifyToDeveloperTelegram(newTask);
     }
 
-    public void notifySystem() {
-        String url = String.format("%s/%d/notify-reviewer", SYSTEM_URL, task.getReviewer().getId());
-        restTemplate.postForEntity(url, task.getId(), Void.class);
-        System.out.println("Отправка уведомления системе: " + url);
+    public void sendReviewerMessage(Task task) {
+        DataPrint.notifyToReviewerTelegram(task);
     }
 
-    public void getReviewerMessage(Long taskId) {
-        Task taskById = taskService.getTaskById(taskId);
-        MergeRequestDataPrints.notifyToReviewerTelegram(taskById);
+    private static class DataPrint {
+        private static String logTasks(Task task, UserRole role) {
+            return String.format("""
+                            Ваша роль - %s
+                            Данные о новом MergeRequest:
+                            Название: %s
+                            Ссылка на MR: %s
+                            Статус: %s
+                            """,
+                    role,
+                    task.getTitle(),
+                    task.getLinkToMr(),
+                    task.getStatus()
+            );
+        }
+
+        public static void notifyToDeveloperTelegram(Task task) {
+            System.out.println(logTasks(task, UserRole.DEVELOPER));
+        }
+
+        public static void notifyToReviewerTelegram(Task task) {
+            System.out.println(logTasks(task, UserRole.REVIEWER));
+        }
     }
 }

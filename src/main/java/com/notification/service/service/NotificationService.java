@@ -12,14 +12,10 @@ public class NotificationService {
     private final TelegramStub telegramStub;
 
     public void notifyDeveloper(Task task) {
-        telegramStub.getDeveloperMessage(task);
+        telegramStub.sendDeveloperMessage(task);
     }
 
-    public void notifyReviewer(Long taskId) {
-        telegramStub.getReviewerMessage(taskId);
-    }
-
-    public void notifySystem() {
-        telegramStub.notifySystem();
+    public void notifyReviewer(Task task) {
+        telegramStub.sendReviewerMessage(task);
     }
 }
