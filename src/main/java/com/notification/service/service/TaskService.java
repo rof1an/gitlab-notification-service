@@ -4,7 +4,6 @@ import com.notification.service.entity.Task;
 import com.notification.service.model.TaskStatus;
 import com.notification.service.model.UserRole;
 import com.notification.service.repository.TaskRepository;
-import com.notification.service.telegram.TelegramStub;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +17,7 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
 
-    private final TelegramStub telegramStub;
+    private final NotificationService notificationService;
 
     public Task createTask(Task task) {
         task.setStatus(TaskStatus.OPEN);
@@ -71,7 +70,7 @@ public class TaskService {
         );
     }
 
-    public Task getTaskById(long id) {
+    public Task getTaskById(Long id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Task with id " + id + " not found"));
     }
@@ -88,20 +87,19 @@ public class TaskService {
         return taskRepository.save(taskById);
     }
 
-    public void notifyDeveloperTasks(Long userId) {
-        List<Task> tasks = taskRepository.findAllByDeveloperId(userId);
-        List<Task> openTasks = tasks.stream()
-                .filter(task -> task.getStatus() != TaskStatus.CLOSED)
-                .toList();
+    public void notifyDeveloperTask(Long developerId, Long taskId) {
+        Task newTaskByDeveloperId = taskRepository.findTaskByDeveloperIdOrderById(developerId);
 
-        telegramStub.getDeveloperMessage(openTasks);
+        if (newTaskByDeveloperId.getStatus() != TaskStatus.CLOSED) {
+            notificationService.notifyDeveloper(newTaskByDeveloperId);
+        }
     }
 
     public void notifyReviewer() {
-        telegramStub.notifySystem();
+        notificationService.notifySystem();
     }
 
-    public void getReviewerMessage(List<Task> tasks){
-        telegramStub.getReviewerMessage(tasks);
+    public void getReviewerMessage(Long taskId) {
+        notificationService.notifyReviewer(taskId);
     }
 }

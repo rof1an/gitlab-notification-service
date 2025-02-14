@@ -34,4 +34,14 @@ public class Task {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewer_id", nullable = false)
     private User reviewer;
+
+    public Task(Task task) {
+        this.id = task.getId();
+        this.title = task.getTitle();
+        this.linkToMr = task.getLinkToMr();
+        this.status = task.getStatus();
+        this.linkToMr = task.getLinkToMr();
+        this.developer = task.getDeveloper();
+        this.reviewer = task.getReviewer();
+    }
 }

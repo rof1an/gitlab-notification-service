@@ -1,46 +1,39 @@
 package com.notification.service.telegram;
 
 import com.notification.service.entity.Task;
+import com.notification.service.service.TaskService;
 import com.notification.service.util.MergeRequestDataPrints;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
+@RequiredArgsConstructor
 public class TelegramStub {
+
+    @Lazy
+    private final TaskService taskService; // TODO - убрать цикл. зависимость
 
     private final RestTemplate restTemplate = new RestTemplate();
 
     private static final String SYSTEM_URL = "http://localhost:8085/api/tasks";
 
-    private List<Task> tasks = new ArrayList<>();
+    private Task task = new Task();
 
-    public void getDeveloperMessage(List<Task> newTasks) {
-        MergeRequestDataPrints.notifyToDeveloperTelegram(newTasks);
-        tasks.addAll(newTasks);
+    public void getDeveloperMessage(Task newTask) {
+        MergeRequestDataPrints.notifyToDeveloperTelegram(newTask);
+        this.task = new Task(newTask);
     }
 
-    @Transactional
     public void notifySystem() {
-        List<Long> reviewersId = tasks.stream()
-                .map(task -> task.getReviewer().getId())
-                .toList();
-
-        reviewersId.forEach(id -> {
-            List<Task> preparedTasks = tasks.stream()
-                    .peek(task -> task.getReviewer().getId())
-                    .toList();
-
-            String url = String.format("%s/%d/notify-reviewer", SYSTEM_URL, id);
-            restTemplate.postForEntity(url, preparedTasks, Void.class);
-            System.out.println("Отправка уведомления системе: " + url);
-        });
+        String url = String.format("%s/%d/notify-reviewer", SYSTEM_URL, task.getReviewer().getId());
+        restTemplate.postForEntity(url, task.getId(), Void.class);
+        System.out.println("Отправка уведомления системе: " + url);
     }
 
-    public void getReviewerMessage(List<Task> tasks) {
-        MergeRequestDataPrints.notifyToReviewerTelegram(tasks);
+    public void getReviewerMessage(Long taskId) {
+        Task taskById = taskService.getTaskById(taskId);
+        MergeRequestDataPrints.notifyToReviewerTelegram(taskById);
     }
 }
