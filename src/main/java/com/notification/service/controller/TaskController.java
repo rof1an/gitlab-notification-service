@@ -26,8 +26,18 @@ public class TaskController {
         return mapper.toDto(savedTask);
     }
 
-    @PostMapping("/{id}/merge")
-    public TaskDto mergedTask(@PathVariable("id") Long id) {
+    @PostMapping("/{taskId}/notify/developer")
+    public void notifyDeveloper(@PathVariable("taskId") Long taskId) {
+        taskService.notifyDeveloperTask(taskId);
+    }
+
+    @PostMapping("/{taskId}/notify/reviewer")
+    public void notifyReviewer(@PathVariable("taskId") Long taskId) {
+        taskService.notifyReviewerTask(taskId);
+    }
+
+    @PostMapping("/{taskId}/merge")
+    public TaskDto mergedTask(@PathVariable("taskId") Long id) {
         Task mergedTask = taskService.mergedTask(id);
         return mapper.toDto(mergedTask);
     }

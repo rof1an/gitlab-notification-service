@@ -17,6 +17,8 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
 
+    private final NotificationService notificationService;
+
     public Task createTask(Task task) {
         task.setStatus(TaskStatus.OPEN);
         return taskRepository.save(task);
@@ -68,7 +70,7 @@ public class TaskService {
         );
     }
 
-    public Task getTaskById(long id) {
+    public Task getTaskById(Long id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Task with id " + id + " not found"));
     }
@@ -83,5 +85,23 @@ public class TaskService {
 
         taskById.setStatus(status);
         return taskRepository.save(taskById);
+    }
+
+    public void notifyDeveloperTask(Long taskId) {
+        Task newTaskById = taskRepository.findById(taskId)
+                .orElseThrow(() -> new EntityNotFoundException("Task with id " + taskId + " not found"));
+
+        if (newTaskById.getStatus() != TaskStatus.CLOSED) {
+            notificationService.notifyDeveloper(newTaskById);
+        }
+    }
+
+    public void notifyReviewerTask(Long taskId) {
+        Task newTaskById = taskRepository.findById(taskId)
+                .orElseThrow(() -> new EntityNotFoundException("Task with id " + taskId + " not found"));
+
+        if (newTaskById.getStatus() != TaskStatus.CLOSED) {
+            notificationService.notifyReviewer(newTaskById);
+        }
     }
 }
