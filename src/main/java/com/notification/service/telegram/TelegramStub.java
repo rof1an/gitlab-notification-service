@@ -13,10 +13,6 @@ public class TelegramStub {
         DataPrint.notifyToDeveloperTelegram(newTask);
     }
 
-    public void sendReviewerMessage(Task task) {
-        DataPrint.notifyToReviewerTelegram(task);
-    }
-
     private static class DataPrint {
         private static String logTasks(Task task, UserRole role) {
             return String.format("""
