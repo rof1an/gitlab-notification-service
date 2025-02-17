@@ -14,4 +14,8 @@ public class NotificationService {
     public void notifyDeveloper(Task task) {
         telegramStub.sendDeveloperMessage(task);
     }
+
+    public void notifyReviewer(Task task) {
+        telegramStub.sendReviewerMessage(task);
+    }
 }
