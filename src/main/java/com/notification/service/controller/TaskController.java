@@ -31,6 +31,11 @@ public class TaskController {
         taskService.notifyDeveloperTask(taskId);
     }
 
+    @PostMapping("/{taskId}/notify/reviewer")
+    public void notifyReviewer(@PathVariable("taskId") Long taskId) {
+        taskService.notifyReviewerTask(taskId);
+    }
+
     @PostMapping("/{taskId}/merge")
     public TaskDto mergedTask(@PathVariable("taskId") Long id) {
         Task mergedTask = taskService.mergedTask(id);
@@ -43,8 +48,8 @@ public class TaskController {
         return mapper.toDtoList(tasks);
     }
 
-    @GetMapping("/user/{id}")
-    public List<TaskDto> getUserTasks(@PathVariable("id") Long id,
+    @GetMapping("{id}/user")
+    public List<TaskDto> getTasksByUser(@PathVariable("id") Long id,
                                         @RequestParam(value = "status", required = false) UserRole role) {
         List<Task> tasks = taskService.getTasksByUser(id, role);
         return mapper.toDtoList(tasks);
