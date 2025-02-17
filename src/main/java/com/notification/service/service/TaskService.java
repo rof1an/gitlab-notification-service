@@ -95,4 +95,13 @@ public class TaskService {
             notificationService.notifyDeveloper(newTaskById);
         }
     }
+
+    public void notifyReviewerTask(Long taskId) {
+        Task newTaskById = taskRepository.findById(taskId)
+                .orElseThrow(() -> new EntityNotFoundException("Task with id " + taskId + " not found"));
+
+        if (newTaskById.getStatus() != TaskStatus.CLOSED) {
+            notificationService.notifyReviewer(newTaskById);
+        }
+    }
 }
