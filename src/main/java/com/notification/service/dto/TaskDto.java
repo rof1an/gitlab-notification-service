@@ -11,8 +11,6 @@ public class TaskDto {
 
     private String linkToMr;
 
-    private String status;
-
     private UserDto developer;
 
     private UserDto reviewer;
