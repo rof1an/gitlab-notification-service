@@ -17,7 +17,6 @@ public interface TaskMapper {
 
     @Mapping(target = "title", source = "taskDto.title")
     @Mapping(target = "linkToMr", source = "taskDto.linkToMr")
-    @Mapping(target = "status", source = "taskDto.status")
     @Mapping(target = "developer", source = "taskDto.developerId", qualifiedByName = "idToUser")
     @Mapping(target = "reviewer", source = "taskDto.reviewerId", qualifiedByName = "idToUser")
     Task toModel(CreateTaskDto taskDto);

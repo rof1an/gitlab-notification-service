@@ -11,8 +11,6 @@ public class CreateTaskDto {
 
     private String linkToMr;
 
-    private String status;
-
     private long developerId;
 
     private long reviewerId;
