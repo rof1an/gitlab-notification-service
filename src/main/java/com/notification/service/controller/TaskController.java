@@ -1,6 +1,5 @@
 package com.notification.service.controller;
 
-import com.notification.service.dto.CreateTaskDto;
 import com.notification.service.dto.TaskDto;
 import com.notification.service.entity.Task;
 import com.notification.service.mapper.TaskMapper;
@@ -21,7 +20,7 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping
-    public TaskDto createTask(@RequestBody CreateTaskDto taskDto) {
+    public TaskDto createTask(@RequestBody TaskDto taskDto) {
         Task savedTask = taskService.createTask(mapper.toModel(taskDto));
         return mapper.toDto(savedTask);
     }
