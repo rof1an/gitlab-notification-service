@@ -1,6 +1,5 @@
 package com.notification.service.mapper;
 
-import com.notification.service.dto.CreateTaskDto;
 import com.notification.service.dto.TaskDto;
 import com.notification.service.entity.Task;
 import com.notification.service.entity.User;
@@ -13,13 +12,11 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface TaskMapper {
 
-    Task toModel(TaskDto taskDto);
-
     @Mapping(target = "title", source = "taskDto.title")
     @Mapping(target = "linkToMr", source = "taskDto.linkToMr")
-    @Mapping(target = "developer", source = "taskDto.developerId", qualifiedByName = "idToUser")
-    @Mapping(target = "reviewer", source = "taskDto.reviewerId", qualifiedByName = "idToUser")
-    Task toModel(CreateTaskDto taskDto);
+    @Mapping(target = "developer", source = "taskDto.developer")
+    @Mapping(target = "reviewer", source = "taskDto.reviewer")
+    Task toModel(TaskDto taskDto);
 
     TaskDto toDto(Task task);
 
