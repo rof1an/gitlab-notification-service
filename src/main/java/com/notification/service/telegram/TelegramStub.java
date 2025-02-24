@@ -10,18 +10,18 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class TelegramStub {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public void sendDeveloperMessage(Task newTask) {
-        DataPrint.notifyToDeveloperTelegram(newTask);
+        new DataPrint().notifyToDeveloperTelegram(newTask);
     }
 
     public void sendReviewerMessage(Task task) {
-        DataPrint.notifyToReviewerTelegram(task);
+        new DataPrint().notifyToReviewerTelegram(task);
     }
 
-    private static class DataPrint {
-        private static String logTasks(Task task, UserRole role) {
+    private class DataPrint {
+        private String logTasks(Task task, UserRole role) {
             NotificationData data = new NotificationData(
                     role.toString(),
                     task.getTitle(),
@@ -38,11 +38,11 @@ public class TelegramStub {
             }
         }
 
-        public static void notifyToDeveloperTelegram(Task task) {
+        private void notifyToDeveloperTelegram(Task task) {
             System.out.println(logTasks(task, UserRole.DEVELOPER));
         }
 
-        public static void notifyToReviewerTelegram(Task task) {
+        private void notifyToReviewerTelegram(Task task) {
             System.out.println(logTasks(task, UserRole.REVIEWER));
         }
 
