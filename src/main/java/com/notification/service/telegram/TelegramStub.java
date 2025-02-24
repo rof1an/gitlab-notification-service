@@ -1,5 +1,7 @@
 package com.notification.service.telegram;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.notification.service.entity.Task;
 import com.notification.service.model.UserRole;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class TelegramStub {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public void sendDeveloperMessage(Task newTask) {
         DataPrint.notifyToDeveloperTelegram(newTask);
@@ -19,18 +22,20 @@ public class TelegramStub {
 
     private static class DataPrint {
         private static String logTasks(Task task, UserRole role) {
-            return String.format("""
-                            Ваша роль - %s
-                            Данные о новом MergeRequest:
-                            Название: %s
-                            Ссылка на MR: %s
-                            Статус: %s
-                            """,
-                    role,
+            NotificationData data = new NotificationData(
+                    role.toString(),
                     task.getTitle(),
                     task.getLinkToMr(),
-                    task.getStatus()
+                    task.getStatus().name(),
+                    task.getDeveloper().getId(),
+                    task.getReviewer().getId()
             );
+
+            try {
+                return objectMapper.writeValueAsString(data);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Ошибка сериализации JSON", e);
+            }
         }
 
         public static void notifyToDeveloperTelegram(Task task) {
@@ -41,4 +46,13 @@ public class TelegramStub {
             System.out.println(logTasks(task, UserRole.REVIEWER));
         }
     }
+
+    private record NotificationData(
+            String role,
+            String title,
+            String linkToMr,
+            String status,
+            Long developerId,
+            Long reviewerId
+    ) {}
 }
