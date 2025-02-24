@@ -45,14 +45,14 @@ public class TelegramStub {
         public static void notifyToReviewerTelegram(Task task) {
             System.out.println(logTasks(task, UserRole.REVIEWER));
         }
-    }
 
-    private record NotificationData(
-            String role,
-            String title,
-            String linkToMr,
-            String status,
-            Long developerId,
-            Long reviewerId
-    ) {}
+        private record NotificationData(
+                String role,
+                String title,
+                String linkToMr,
+                String status,
+                Long developerId,
+                Long reviewerId
+        ) {}
+    }
 }
