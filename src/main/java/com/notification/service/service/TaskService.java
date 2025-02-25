@@ -35,40 +35,20 @@ public class TaskService {
         if (Optional.ofNullable(role).isPresent()) {
             if (role.equals(UserRole.DEVELOPER)) {
                 List<Task> tasks = taskRepository.findAllByDeveloperId(id);
-                logTasks(tasks);
+                tasks.forEach(task -> notificationService.logTasks(task, UserRole.DEVELOPER));
 
                 return tasks;
             }
 
             if (role.equals(UserRole.REVIEWER)) {
                 List<Task> tasks = taskRepository.findAllByReviewerId(id);
-                logTasks(tasks);
+                tasks.forEach(task -> notificationService.logTasks(task, UserRole.REVIEWER));
+
                 return tasks;
             }
         }
 
         return taskRepository.findAll();
-    }
-
-    private void logTasks(List<Task> tasks) {
-        tasks.forEach(task -> System.out.println(formatLogMessage(task)));
-    }
-
-    private String formatLogMessage(Task task) {
-        return String.format("""
-                        Получен новый MR!
-                        Название: %s
-                        Разработчик: %s
-                        Проверяющий: %s
-                        Ссылка на MR: %s
-                        Статус: %s
-                        """,
-                task.getTitle(),
-                task.getDeveloper().getUsername(),
-                task.getReviewer().getUsername(),
-                task.getLinkToMr(),
-                task.getStatus()
-        );
     }
 
     public Task getTaskById(Long id) {

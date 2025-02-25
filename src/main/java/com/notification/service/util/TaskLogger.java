@@ -1,31 +1,18 @@
-package com.notification.service.service;
+package com.notification.service.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.notification.service.entity.Task;
 import com.notification.service.model.NotificationData;
 import com.notification.service.model.UserRole;
-import com.notification.service.telegram.TelegramStub;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
-@RequiredArgsConstructor
-public class NotificationService {
+@Component
+public class TaskLogger {
 
-    private final TelegramStub telegramStub;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final ObjectMapper objectMapper;
-
-    public void notifyDeveloper(Task task) {
-        telegramStub.sendDeveloperMessage(task);
-    }
-
-    public void notifyReviewer(Task task) {
-        telegramStub.sendReviewerMessage(task);
-    }
-
-    public void logTasks(Task task, UserRole role) {
+    public String logTasks(Task task, UserRole role) {
         NotificationData data = new NotificationData(
                 role.toString(),
                 task.getTitle(),
@@ -36,7 +23,7 @@ public class NotificationService {
         );
 
         try {
-            objectMapper.writeValueAsString(data);
+            return objectMapper.writeValueAsString(data);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Ошибка сериализации JSON", e);
         }
