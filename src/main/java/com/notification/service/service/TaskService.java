@@ -4,6 +4,7 @@ import com.notification.service.entity.Task;
 import com.notification.service.model.TaskStatus;
 import com.notification.service.model.UserRole;
 import com.notification.service.repository.TaskRepository;
+import com.notification.service.util.TaskLogger;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,8 @@ public class TaskService {
     private final TaskRepository taskRepository;
 
     private final NotificationService notificationService;
+
+    private final TaskLogger taskLogger;
 
     public Task createTask(Task task) {
         task.setStatus(TaskStatus.OPEN);
@@ -35,14 +38,14 @@ public class TaskService {
         if (Optional.ofNullable(role).isPresent()) {
             if (role.equals(UserRole.DEVELOPER)) {
                 List<Task> tasks = taskRepository.findAllByDeveloperId(id);
-                tasks.forEach(task -> notificationService. logTasks(task, UserRole.DEVELOPER));
+                tasks.forEach(task -> taskLogger.logTasks(task, UserRole.DEVELOPER));
 
                 return tasks;
             }
 
             if (role.equals(UserRole.REVIEWER)) {
                 List<Task> tasks = taskRepository.findAllByReviewerId(id);
-                tasks.forEach(task -> notificationService.logTasks(task, UserRole.REVIEWER));
+                tasks.forEach(task -> taskLogger.logTasks(task, UserRole.REVIEWER));
 
                 return tasks;
             }
