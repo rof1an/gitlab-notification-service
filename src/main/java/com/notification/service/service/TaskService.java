@@ -35,7 +35,7 @@ public class TaskService {
         if (Optional.ofNullable(role).isPresent()) {
             if (role.equals(UserRole.DEVELOPER)) {
                 List<Task> tasks = taskRepository.findAllByDeveloperId(id);
-                tasks.forEach(task -> notificationService.logTasks(task, UserRole.DEVELOPER));
+                tasks.forEach(task -> notificationService. logTasks(task, UserRole.DEVELOPER));
 
                 return tasks;
             }

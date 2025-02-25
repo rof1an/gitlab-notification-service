@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.notification.service.entity.Task;
 import com.notification.service.model.NotificationData;
 import com.notification.service.model.UserRole;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class TaskLogger {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     public String logTasks(Task task, UserRole role) {
         NotificationData data = new NotificationData(
