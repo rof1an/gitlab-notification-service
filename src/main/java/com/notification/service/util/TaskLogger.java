@@ -14,7 +14,7 @@ public class TaskLogger {
 
     private final ObjectMapper objectMapper;
 
-    public String logTasks(Task task, UserRole role) {
+    public void logTask(Task task, UserRole role) {
         NotificationData data = new NotificationData(
                 role.toString(),
                 task.getTitle(),
@@ -25,7 +25,8 @@ public class TaskLogger {
         );
 
         try {
-            return objectMapper.writeValueAsString(data);
+            String writtenValueAsString = objectMapper.writeValueAsString(data);
+            System.out.println(writtenValueAsString);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Ошибка сериализации JSON", e);
         }

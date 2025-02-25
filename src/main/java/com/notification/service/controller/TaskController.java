@@ -48,10 +48,9 @@ public class TaskController {
     }
 
     @GetMapping("{id}/user")
-    public List<TaskDto> getTasksByUser(@PathVariable("id") Long id,
-                                        @RequestParam(value = "status", required = false) UserRole role) {
-        List<Task> tasks = taskService.getTasksByUser(id, role);
-        return mapper.toDtoList(tasks);
+    public TaskDto getTaskByUser(@PathVariable("id") Long userId, @RequestParam(value = "role") UserRole role) {
+        Task task = taskService.getTaskByUser(userId, role);
+        return mapper.toDto(task);
     }
 
     @GetMapping("/{id}")

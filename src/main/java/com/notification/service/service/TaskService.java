@@ -34,24 +34,24 @@ public class TaskService {
         return taskRepository.save(taskById);
     }
 
-    public List<Task> getTasksByUser(Long id, UserRole role) {
+    public Task getTaskByUser(Long userId, UserRole role) {
         if (Optional.ofNullable(role).isPresent()) {
             if (role.equals(UserRole.DEVELOPER)) {
-                List<Task> tasks = taskRepository.findAllByDeveloperId(id);
-                tasks.forEach(task -> taskLogger.logTasks(task, UserRole.DEVELOPER));
+                Task task = taskRepository.findByDeveloperId(userId);
+                taskLogger.logTask(task, UserRole.DEVELOPER);
 
-                return tasks;
+                return task;
             }
 
             if (role.equals(UserRole.REVIEWER)) {
-                List<Task> tasks = taskRepository.findAllByReviewerId(id);
-                tasks.forEach(task -> taskLogger.logTasks(task, UserRole.REVIEWER));
+                Task task = taskRepository.findByReviewerId(userId);
+                taskLogger.logTask(task, UserRole.REVIEWER);
 
-                return tasks;
+                return task;
             }
         }
 
-        return taskRepository.findAll();
+        throw new IllegalArgumentException("User role cannot be null");
     }
 
     public Task getTaskById(Long id) {
