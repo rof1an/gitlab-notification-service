@@ -12,7 +12,7 @@ participant Telegram as tg
 dev -> gl: 1. Push new changes
 dev -> gl: 2. New MergeRequest
 gl [#red]--> sys: 3. On new MergeRequest (webhook)
-sys -> sys: 4. Created task, status "open"
+sys -> sys: 4. Created task, status "OPEN"
 sys -> tg: 5. New MergeRequest. /notify that new changes pushed
 tg -> dev: 6. /notify reviewer that new changes pushed
 dev -> tg: 7. /notify that new changes pushed
@@ -21,21 +21,27 @@ sys -> tg: 9. Chosen reviewer, send message
 tg -> rev: 10. Get message: received new changes in MergeRequest
 
 alt Есть замечания, нужны исправления
-rev -> gl: 10.1. Create some thresholds
-rev -> tg: 10.2. /notify developer that changes are needed
-gl [#red]--> sys: 10.3. On fixes notify (webhook), task status = "NEED_FIXES"
-sys -> tg: 10.4. Chosen developer, message: "Need some fixes"
-tg -> dev: 10.5. Need some fixes
-dev -> gl: 10.6. Push new changes
-gl [#red]--> sys: 10.7. On new changes (webhook), task status = "REVIEW"
-dev -> tg: 10.7. /notify reviewer that new changes done
-sys -> tg: 10.9. Chosen reviewer, send message
-tg -> rev: 10.10. Get message: received new changes in MergeRequest
+rev -> gl: 10.1. Create some threshold
+gl [#red]--> sys: 10.2. On threshold notify (webhook)
+sys -> tg: 10.3. Created threshold to fix
+tg -> rev: 10.4. /notify developer about threshold
+rev -> tg: 10.5. /notify developer about threshold
+tg -> sys: 10.6. Choose developer
+'gl [#red]--> sys: 10.7. On fixes notify (webhook)
+sys -> sys: 10.8. Task status = "NEED_FIXES"
+sys -> tg: 10.9. Send message to chosen developer "Need some fixes"
+tg -> dev: 10.10. Need some fixes
+dev -> gl: 10.11. Push new changes
+gl [#red]--> sys: 10.12. On new changes (webhook)
+sys -> sys: Task status = "REVIEW"
+dev -> tg: 10.13. /notify reviewer that new changes done
+sys -> tg: 10.14. Chosen reviewer, send message
+tg -> rev: 10.15. Get message: received new changes in MergeRequest
 end
 
 rev -> gl: 11. Merge code
 gl [#red]--> sys: 12. On MergeRequest close (webhook), task status = "CLOSED"
-sys -> sys: 13. Task status: "CLOSED"
+sys -> sys: 13. Task status = "CLOSED"
 sys -> tg: 14. Chosen developer, message: "MergeRequest reviewed"
 tg -> dev: 15. MergeRequest reviewed
 
