@@ -46,6 +46,11 @@ public class TaskController {
         taskService.notifyThresholdTask(taskId);
     }
 
+    @PostMapping("/{taskId}/accept-threshold")
+    public void acceptThresholdTaskNotify(@PathVariable("taskId") Long taskId) {
+        taskService.acceptThresholdTaskNotify(taskId);
+    }
+
     @GetMapping
     public List<TaskDto> getTasks() {
         List<Task> tasks = taskService.getAllTasks();

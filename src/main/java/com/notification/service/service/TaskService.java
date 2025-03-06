@@ -26,11 +26,19 @@ public class TaskService {
     }
 
     public void notifyThresholdTask(Long taskId) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new EntityNotFoundException("Task not found"));
+        Task task = getTaskById(taskId);
 
         if (task.getStatus() != TaskStatus.CLOSED) {
             notificationService.notifyThresholdReviewer(task);
+        }
+    }
+
+    public void acceptThresholdTaskNotify(Long taskId){
+        Task task = getTaskById(taskId);
+
+        if (task.getStatus() != TaskStatus.CLOSED) {
+            task.setStatus(TaskStatus.NEED_FIXES);
+            notificationService.acceptThresholdTaskNotify(task);
         }
     }
 

@@ -23,8 +23,7 @@ public class NotificationService {
         telegramStub.sendThresholdReviewerMessage(task);
     }
 
-    public void notifyThresholdDeveloper(Task task) {
-        telegramStub.sendThresholdDeveloperMessage(task);
+    public void acceptThresholdTaskNotify(Task task){
+        telegramStub.acceptThresholdTaskNotify(task);
     }
-
 }
