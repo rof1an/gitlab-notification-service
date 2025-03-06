@@ -25,6 +25,15 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
+    public void notifyThresholdTask(Long taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new EntityNotFoundException("Task not found"));
+
+        if (task.getStatus() != TaskStatus.CLOSED) {
+            notificationService.notifyThresholdReviewer(task);
+        }
+    }
+
     public Task mergedTask(Long id) {
         Task taskById = getTaskById(id);
         taskById.setStatus(TaskStatus.CLOSED);

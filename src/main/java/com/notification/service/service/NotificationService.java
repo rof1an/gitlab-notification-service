@@ -18,4 +18,13 @@ public class NotificationService {
     public void notifyReviewer(Task task) {
         telegramStub.sendReviewerMessage(task);
     }
+
+    public void notifyThresholdReviewer(Task task) {
+        telegramStub.sendThresholdReviewerMessage(task);
+    }
+
+    public void notifyThresholdDeveloper(Task task) {
+        telegramStub.sendThresholdDeveloperMessage(task);
+    }
+
 }

@@ -15,17 +15,25 @@ public class TelegramStub {
     private final NotificationPrinter notificationPrinter = new NotificationPrinter();
 
     public void sendDeveloperMessage(Task newTask) {
-        notificationPrinter.notifyToDeveloperTelegram(newTask);
+        notificationPrinter.logTasks(newTask);
     }
 
     public void sendReviewerMessage(Task task) {
-        notificationPrinter.notifyToReviewerTelegram(task);
+        notificationPrinter.logTasks(task);
+    }
+
+    public void sendThresholdReviewerMessage(Task task) {
+        notificationPrinter.notifyToReviewerAboutThreshold(task);
+    }
+
+    public void sendThresholdDeveloperMessage(Task task) {
+        notificationPrinter.notifyToDeveloperAboutThreshold(task);
     }
 
     public class NotificationPrinter {
-        private String logTasks(Task task, UserRole role) {
+        private void logTasks(Task task) {
             NotificationData data = new NotificationData(
-                    role.toString(),
+                    UserRole.DEVELOPER.toString(),
                     task.getTitle(),
                     task.getLinkToMr(),
                     task.getStatus().name(),
@@ -34,18 +42,20 @@ public class TelegramStub {
             );
 
             try {
-                return objectMapper.writeValueAsString(data);
+                System.out.println(data);
+                objectMapper.writeValueAsString(data);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException("Ошибка сериализации JSON", e);
             }
         }
 
-        private void notifyToDeveloperTelegram(Task task) {
-            System.out.println(logTasks(task, UserRole.DEVELOPER));
+        private void notifyToReviewerAboutThreshold(Task task) {
+            System.out.println("Threshold reached! Reviewer must confirm notification.");
+            // Здесь можно отправить сообщение в Telegram с кнопками "Confirm" и "Deny"
         }
 
-        private void notifyToReviewerTelegram(Task task) {
-            System.out.println(logTasks(task, UserRole.REVIEWER));
+        private void notifyToDeveloperAboutThreshold(Task task) {
+            System.out.println("Reviewer confirmed threshold, notifying developer...");
         }
 
         private record NotificationData(
