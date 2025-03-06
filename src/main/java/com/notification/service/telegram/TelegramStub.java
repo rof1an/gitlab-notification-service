@@ -1,9 +1,8 @@
 package com.notification.service.telegram;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.notification.service.entity.Task;
 import com.notification.service.model.UserRole;
+import com.notification.service.util.TaskLogger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -11,51 +10,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TelegramStub {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final NotificationPrinter notificationPrinter = new NotificationPrinter();
+    private final TaskLogger taskLogger;
 
-    public void sendDeveloperMessage(Task newTask) {
-        notificationPrinter.notifyToDeveloperTelegram(newTask);
+    public void sendDeveloperMessage(Task task) {
+        taskLogger.logTask(task, UserRole.DEVELOPER);
     }
 
     public void sendReviewerMessage(Task task) {
-        notificationPrinter.notifyToReviewerTelegram(task);
-    }
-
-    public class NotificationPrinter {
-        private String logTasks(Task task, UserRole role) {
-            NotificationData data = new NotificationData(
-                    role.toString(),
-                    task.getTitle(),
-                    task.getLinkToMr(),
-                    task.getStatus().name(),
-                    task.getDeveloper().getId(),
-                    task.getReviewer().getId()
-            );
-
-            try {
-                return objectMapper.writeValueAsString(data);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException("Ошибка сериализации JSON", e);
-            }
-        }
-
-        private void notifyToDeveloperTelegram(Task task) {
-            System.out.println(logTasks(task, UserRole.DEVELOPER));
-        }
-
-        private void notifyToReviewerTelegram(Task task) {
-            System.out.println(logTasks(task, UserRole.REVIEWER));
-        }
-
-        private record NotificationData(
-                String role,
-                String title,
-                String linkToMr,
-                String status,
-                Long developerId,
-                Long reviewerId
-        ) {
-        }
+        taskLogger.logTask(task, UserRole.REVIEWER);
     }
 }

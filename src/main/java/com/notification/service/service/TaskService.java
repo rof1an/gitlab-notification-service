@@ -4,6 +4,7 @@ import com.notification.service.entity.Task;
 import com.notification.service.model.TaskStatus;
 import com.notification.service.model.UserRole;
 import com.notification.service.repository.TaskRepository;
+import com.notification.service.util.TaskLogger;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,8 @@ public class TaskService {
 
     private final NotificationService notificationService;
 
+    private final TaskLogger taskLogger;
+
     public Task createTask(Task task) {
         task.setStatus(TaskStatus.OPEN);
         notificationService.notifyDeveloper(task);
@@ -31,44 +34,24 @@ public class TaskService {
         return taskRepository.save(taskById);
     }
 
-    public List<Task> getTasksByUser(Long id, UserRole role) {
+    public Task getTaskByUser(Long userId, UserRole role) {
         if (Optional.ofNullable(role).isPresent()) {
             if (role.equals(UserRole.DEVELOPER)) {
-                List<Task> tasks = taskRepository.findAllByDeveloperId(id);
-                logTasks(tasks);
+                Task task = taskRepository.findByDeveloperId(userId);
+                taskLogger.logTask(task, UserRole.DEVELOPER);
 
-                return tasks;
+                return task;
             }
 
             if (role.equals(UserRole.REVIEWER)) {
-                List<Task> tasks = taskRepository.findAllByReviewerId(id);
-                logTasks(tasks);
-                return tasks;
+                Task task = taskRepository.findByReviewerId(userId);
+                taskLogger.logTask(task, UserRole.REVIEWER);
+
+                return task;
             }
         }
 
-        return taskRepository.findAll();
-    }
-
-    private void logTasks(List<Task> tasks) {
-        tasks.forEach(task -> System.out.println(formatLogMessage(task)));
-    }
-
-    private String formatLogMessage(Task task) {
-        return String.format("""
-                        Получен новый MR!
-                        Название: %s
-                        Разработчик: %s
-                        Проверяющий: %s
-                        Ссылка на MR: %s
-                        Статус: %s
-                        """,
-                task.getTitle(),
-                task.getDeveloper().getUsername(),
-                task.getReviewer().getUsername(),
-                task.getLinkToMr(),
-                task.getStatus()
-        );
+        throw new IllegalArgumentException("User role cannot be null");
     }
 
     public Task getTaskById(Long id) {
