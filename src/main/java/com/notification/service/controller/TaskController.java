@@ -66,11 +66,11 @@ public class TaskController {
     }
 
     @GetMapping("{id}/user")
-    @Operation(summary = "Получить все MR для пользователя")
-    public List<TaskDto> getTaskByUser(@PathVariable("id") Long userId,
+    @Operation(summary = "Получить MR для пользователя")
+    public TaskDto getTaskByUser(@PathVariable("id") Long userId,
                                         @RequestParam(value = "status", required = false) UserRole role) {
-        List<Task> tasks = taskService.getTasksByUser(userId, role);
-        return mapper.toDtoList(tasks);
+        Task task = taskService.getTaskByUser(userId, role);
+        return mapper.toDto(task);
     }
 
     @GetMapping("/{id}")
