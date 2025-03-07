@@ -1,9 +1,9 @@
 package com.notification.service.telegram;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.notification.service.entity.Task;
 import com.notification.service.model.UserRole;
+import com.notification.service.util.TaskLogger;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TelegramStub {
 
+    private final TaskLogger taskLogger;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final NotificationPrinter notificationPrinter = new NotificationPrinter();
 
@@ -68,5 +69,6 @@ public class TelegramStub {
                 Long reviewerId
         ) {
         }
+        taskLogger.logTask(task, UserRole.REVIEWER);
     }
 }
