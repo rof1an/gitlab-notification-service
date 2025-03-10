@@ -29,4 +29,12 @@ public class NotificationService {
                 String.valueOf(task.getReviewer().getId()), message
         );
     }
+
+    public void notifyThresholdReviewer(Task task) {
+        telegramStub.sendThresholdReviewerMessage(task);
+    }
+
+    public void acceptThresholdTaskNotify(Task task){
+        telegramStub.acceptThresholdTaskNotify(task);
+    }
 }

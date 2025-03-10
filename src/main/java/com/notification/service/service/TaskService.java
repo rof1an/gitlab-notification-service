@@ -28,6 +28,23 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
+    public void notifyThresholdTask(Long taskId) {
+        Task task = getTaskById(taskId);
+
+        if (task.getStatus() != TaskStatus.CLOSED) {
+            notificationService.notifyThresholdReviewer(task);
+        }
+    }
+
+    public void acceptThresholdTaskNotify(Long taskId){
+        Task task = getTaskById(taskId);
+
+        if (task.getStatus() != TaskStatus.CLOSED) {
+            task.setStatus(TaskStatus.NEED_FIXES);
+            notificationService.acceptThresholdTaskNotify(task);
+        }
+    }
+
     public Task mergedTask(Long id) {
         Task taskById = getTaskById(id);
         taskById.setStatus(TaskStatus.CLOSED);
