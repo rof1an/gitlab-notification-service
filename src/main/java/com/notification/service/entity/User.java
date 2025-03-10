@@ -25,6 +25,9 @@ public class User {
     @Column(name = "gitlab_id", nullable = false)
     private String gitlabId;
 
+    @Column(name = "telegram_chat_id", nullable = false)
+    private long telegramChatId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private UserRole role;
