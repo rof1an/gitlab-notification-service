@@ -1,6 +1,5 @@
 package com.notification.service.telegram;
 
-import com.notification.service.service.TaskService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -23,19 +22,17 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
     @Value("${bot.name}")
     private String botUsername;
 
-    private final TaskService taskService;
-
     private final String START = "/start";
     private final String GET_REPLY_BUTTONS = "/get_reply_buttons";
     private final String GET_INLINE_BUTTONS = "/get_inline_buttons";
 
-    public HiveNotificationBot(@Value("${bot.token}") String botToken, TaskService taskService) {
+    public HiveNotificationBot(@Value("${bot.token}") String botToken) {
         super(botToken);
-        this.taskService = taskService;
     }
 
     @Override
     public void onUpdateReceived(Update update) {
+        log.info("Update object = {}", update);
         if (update.hasMessage() && update.getMessage().hasText()) {
             String message = update.getMessage().getText();
             String chatId = update.getMessage().getChatId().toString();
@@ -153,7 +150,7 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         sendMessage(chatId, formattedText);
     }
 
-    private void sendMessage(String chatId, String text) {
+    public void sendMessage(String chatId, String text) {
         SendMessage sendMessage = new SendMessage(chatId, text);
 
         try {

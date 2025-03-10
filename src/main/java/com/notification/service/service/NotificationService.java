@@ -1,7 +1,7 @@
 package com.notification.service.service;
 
 import com.notification.service.entity.Task;
-import com.notification.service.telegram.TelegramStub;
+import com.notification.service.telegram.HiveNotificationBot;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -9,13 +9,24 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class NotificationService {
 
-    private final TelegramStub telegramStub;
+    private final HiveNotificationBot hiveNotificationBot;
 
     public void notifyDeveloper(Task task) {
-        telegramStub.sendDeveloperMessage(task);
+        String message = String.format("Новая задача для разработчика: %s\nСсылка: %s",
+                task.getTitle(), task.getLinkToMr());
+
+        hiveNotificationBot.sendMessage(
+                String.valueOf(task.getDeveloper().getId()),
+                message
+        );
     }
 
     public void notifyReviewer(Task task) {
-        telegramStub.sendReviewerMessage(task);
+        String message = String.format("Новая задача на ревью: %s\nСсылка: %s",
+                task.getTitle(), task.getLinkToMr());
+
+        hiveNotificationBot.sendMessage(
+                String.valueOf(task.getReviewer().getId()), message
+        );
     }
 }
