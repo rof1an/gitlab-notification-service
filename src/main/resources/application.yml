@@ -15,3 +15,6 @@ spring:
       ddl-auto: validate
 server:
   port: 8085
+bot:
+  name: hive_notification_bot
+  token: ${BOT_TOKEN}
