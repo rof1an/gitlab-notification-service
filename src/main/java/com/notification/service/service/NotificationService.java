@@ -2,6 +2,7 @@ package com.notification.service.service;
 
 import com.notification.service.entity.Task;
 import com.notification.service.telegram.HiveNotificationBot;
+import com.notification.service.telegram.TelegramStub;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 public class NotificationService {
 
     private final HiveNotificationBot hiveNotificationBot;
+
+    private final TelegramStub telegramStub;
 
     public void notifyDeveloper(Task task) {
         String message = String.format("Новая задача для разработчика: %s\nСсылка: %s",
