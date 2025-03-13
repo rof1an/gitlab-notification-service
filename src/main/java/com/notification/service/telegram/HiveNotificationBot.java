@@ -1,5 +1,9 @@
 package com.notification.service.telegram;
 
+import com.notification.service.entity.Task;
+import com.notification.service.entity.User;
+import com.notification.service.service.TaskService;
+import com.notification.service.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,12 +26,19 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
     @Value("${bot.name}")
     private String botUsername;
 
+    private final TaskService taskService;
+
+    private final UserService userService;
+
     private final String START = "/start";
     private final String GET_REPLY_BUTTONS = "/get_reply_buttons";
     private final String GET_INLINE_BUTTONS = "/get_inline_buttons";
+    private final String GET_NEW_MR = "/get_new_mr";
 
-    public HiveNotificationBot(@Value("${bot.token}") String botToken) {
+    public HiveNotificationBot(@Value("${bot.token}") String botToken, UserService userService, TaskService taskService) {
         super(botToken);
+        this.userService = userService;
+        this.taskService = taskService;
     }
 
     @Override
@@ -39,14 +50,17 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
 
             switch (message) {
                 case START -> {
-                    String userName = update.getMessage().getChat().getFirstName();
-                    startCommand(chatId, userName);
+                    startCommand(update);
                 }
                 case GET_REPLY_BUTTONS -> {
                     sendReplyKeyboard(chatId);
                 }
                 case GET_INLINE_BUTTONS -> {
                     sendInlineKeyboard(chatId);
+                }
+                case GET_NEW_MR -> {
+                    String userName = update.getMessage().getChat().getUserName();
+                    getNewMr(userName);
                 }
                 case "Кнопка 1" -> {
                     sendMessage(chatId, "Вы нажали кнопку 1");
@@ -62,6 +76,12 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
                 }
             }
         }
+    }
+
+    private Task getNewMr(String username){
+        User userByTelegramUsername = userService.findUserByTelegramUsername(username);
+        Task task = taskService.getTaskByUser(userByTelegramUsername.getId(), userByTelegramUsername.getRole());
+        return task;
     }
 
     private ReplyKeyboardMarkup createReplyKeyboardMarkup() {
@@ -124,7 +144,7 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         }
     }
 
-    private void startCommand(String chatId, String userName) {
+    private void startCommand(Update update) {
         String text = """
                 Добро пожаловать в бот, %s.
                 Здесь можно увидеть список МР.
@@ -135,8 +155,21 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
                 /get_inline_buttons
                 """;
 
-        String formattedText = String.format(text, userName);
-        sendMessage(chatId, formattedText);
+        String formattedText = String.format(
+                text, update.getMessage().getChat().getFirstName()
+        );
+
+        sendMessage(
+                String.valueOf(update.getMessage().getChatId()), formattedText
+        );
+
+        String telegramUserName = update.getMessage().getChat().getUserName();
+        Long telegramChatId = update.getMessage().getChat().getId();
+
+        User userByTelegramUsername = userService.findUserByTelegramUsername(telegramUserName);
+        if (userByTelegramUsername.getTelegramChatId() == 0) {
+            userService.updateUserDataByTelegramUsername(telegramUserName, telegramChatId);
+        }
     }
 
     private void defaultCommand(String chatId) {

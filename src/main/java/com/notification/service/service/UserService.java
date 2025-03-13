@@ -24,6 +24,11 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User with id " + id + " not found"));
     }
 
+    public User findUserByTelegramUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User with username " + username + " not found"));
+    }
+
     public List<User> findAllUsers() {
         return userRepository.findAll();
     }
@@ -41,6 +46,14 @@ public class UserService {
                 .ifPresent(existingUser::setRole);
 
         return userRepository.save(existingUser);
+    }
+
+    public void updateUserDataByTelegramUsername(String username, Long telegramChatId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with username = " + username));
+
+        user.setTelegramChatId(telegramChatId);
+        userRepository.save(user);
     }
 
     public void deleteUser(long id) {

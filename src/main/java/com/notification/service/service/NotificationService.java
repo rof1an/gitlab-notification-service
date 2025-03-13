@@ -1,6 +1,7 @@
 package com.notification.service.service;
 
 import com.notification.service.entity.Task;
+import com.notification.service.repository.NotificationRepository;
 import com.notification.service.telegram.HiveNotificationBot;
 import com.notification.service.telegram.TelegramStub;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
+
+    private final NotificationRepository notificationRepository;
 
     private final HiveNotificationBot hiveNotificationBot;
 
@@ -37,7 +40,7 @@ public class NotificationService {
         telegramStub.sendThresholdReviewerMessage(task);
     }
 
-    public void acceptThresholdTaskNotify(Task task){
+    public void acceptThresholdTaskNotify(Task task) {
         telegramStub.acceptThresholdTaskNotify(task);
     }
 }
