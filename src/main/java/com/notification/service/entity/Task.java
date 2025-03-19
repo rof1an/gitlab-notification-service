@@ -29,11 +29,11 @@ public class Task {
     @Column(name = "status", nullable = false)
     private TaskStatus status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "developer_id", nullable = false)
     private User developer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "reviewer_id", nullable = false)
     private User reviewer;
 }
