@@ -4,7 +4,6 @@ import com.notification.service.dto.TaskDto;
 import com.notification.service.entity.Task;
 import com.notification.service.mapper.TaskMapper;
 import com.notification.service.model.TaskStatus;
-import com.notification.service.model.UserRole;
 import com.notification.service.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -65,13 +64,13 @@ public class TaskController {
         return mapper.toDtoList(tasks);
     }
 
-    @GetMapping("{id}/user")
-    @Operation(summary = "Получить MR для пользователя")
-    public TaskDto getTaskByUser(@PathVariable("id") Long userId,
-                                        @RequestParam(value = "status", required = false) UserRole role) {
-        Task task = taskService.getTaskByUser(userId, role);
-        return mapper.toDto(task);
-    }
+//    @GetMapping("{id}/user")
+//    @Operation(summary = "Получить MR для пользователя")
+//    public TaskDto getTaskByUser(@PathVariable("id") Long userId,
+//                                        @RequestParam(value = "status", required = false) UserRole role) {
+//        Task task = taskService.getTaskByUser(userId, role);
+//        return mapper.toDto(task);
+//    }
 
     @GetMapping("/{id}")
     @Operation(summary = "Получить MR по айди")

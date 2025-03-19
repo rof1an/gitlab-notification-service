@@ -1,6 +1,5 @@
 package com.notification.service.entity;
 
-import com.notification.service.model.TaskStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,22 +12,18 @@ import lombok.NoArgsConstructor;
 @Table(name = "notifications")
 @AllArgsConstructor
 @NoArgsConstructor
-public class NotificationData {
+public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String role;
+    @Column(name = "message", nullable = false)
+    private String message;
 
-    private String title;
+    @OneToOne(cascade = CascadeType.ALL)
+    private Task task;
 
-    private String linkToMr;
-
-    @Enumerated(EnumType.STRING)
-    private TaskStatus status;
-
-    private Long developerId;
-
-    private Long reviewerId;
+    @Column(name = "is_read", nullable = false)
+    private boolean isRead;
 }

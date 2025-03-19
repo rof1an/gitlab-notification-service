@@ -1,7 +1,9 @@
 package com.notification.service.telegram;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.notification.service.entity.Task;
 import com.notification.service.entity.User;
+import com.notification.service.service.NotificationService;
 import com.notification.service.service.TaskService;
 import com.notification.service.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -26,24 +29,38 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
     @Value("${bot.name}")
     private String botUsername;
 
+    private final UserService userService;
+
+    private final NotificationService notificationService;
+
     private final TaskService taskService;
 
-    private final UserService userService;
+    private final ObjectMapper objectMapper;
 
     private final String START = "/start";
     private final String GET_REPLY_BUTTONS = "/get_reply_buttons";
     private final String GET_INLINE_BUTTONS = "/get_inline_buttons";
-    private final String GET_NEW_MR = "/get_new_mr";
 
-    public HiveNotificationBot(@Value("${bot.token}") String botToken, UserService userService, TaskService taskService) {
+    public HiveNotificationBot(@Value("${bot.token}") String botToken,
+                               UserService userService,
+                               NotificationService notificationService,
+                               ObjectMapper objectMapper,
+                               TaskService taskService) {
         super(botToken);
         this.userService = userService;
+        this.notificationService = notificationService;
+        this.objectMapper = objectMapper;
         this.taskService = taskService;
     }
 
     @Override
     public void onUpdateReceived(Update update) {
         log.info("Update object = {}", update);
+
+        if (update.hasCallbackQuery()) {
+            handleCallbackQuery(update.getCallbackQuery());
+        }
+
         if (update.hasMessage() && update.getMessage().hasText()) {
             String message = update.getMessage().getText();
             String chatId = update.getMessage().getChatId().toString();
@@ -54,13 +71,6 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
                 }
                 case GET_REPLY_BUTTONS -> {
                     sendReplyKeyboard(chatId);
-                }
-                case GET_INLINE_BUTTONS -> {
-                    sendInlineKeyboard(chatId);
-                }
-                case GET_NEW_MR -> {
-                    String userName = update.getMessage().getChat().getUserName();
-                    getNewMr(userName);
                 }
                 case "Кнопка 1" -> {
                     sendMessage(chatId, "Вы нажали кнопку 1");
@@ -78,10 +88,65 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         }
     }
 
-    private Task getNewMr(String username){
-        User userByTelegramUsername = userService.findUserByTelegramUsername(username);
-        Task task = taskService.getTaskByUser(userByTelegramUsername.getId(), userByTelegramUsername.getRole());
-        return task;
+    private void handleCallbackQuery(CallbackQuery callbackQuery) {
+        String data = callbackQuery.getData();
+        String chatId = callbackQuery.getMessage().getChatId().toString();
+
+        try {
+            if (data.contains(":")) {
+                // Обработка команд с taskId (например, confirm_reviewer:123)
+                String[] parts = data.split(":");
+                Long taskId = Long.parseLong(parts[1]);
+
+                switch (parts[0]) {
+                    case "confirm_reviewer" -> {
+                        Task task = taskService.notifyReviewerTask(taskId);
+                        Long notificationIdByDeveloperId = notificationService.
+                                getNotificationByDeveloperId(task.getDeveloper().getId()).getId();
+
+                        notificationService.setNotificationRed(notificationIdByDeveloperId, true);
+                        sendMessage(chatId, "✅ Ревьюер успешно уведомлен!");
+                    }
+                    case "accept_threshold" -> {
+                        taskService.acceptThresholdTaskNotify(taskId);
+                        sendMessage(chatId, "✅ Уведомление разработчика отправлено!");
+                    }
+                    default -> sendMessage(chatId, "⚠️ Неизвестная команда: " + data);
+                }
+            } else {
+                // Обработка простых команд без taskId (например, button_pressed)
+                switch (data) {
+                    case "button_pressed" ->
+                            sendMessage(chatId, "Вы нажали на тестовую кнопку! 🎉");
+                    default ->
+                            sendMessage(chatId, "⚠️ Неизвестная команда: " + data);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Ошибка обработки CallbackQuery", e);
+            sendMessage(chatId, "⚠️ Произошла ошибка. Попробуйте позже.");
+        }
+    }
+
+    public void sendMessageWithConfirmation(String chatId, String text, Long taskId) {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        button.setText("Уведомить ревьюера");
+        button.setCallbackData("confirm_reviewer:" + taskId);
+
+        keyboard.add(List.of(button));
+        markup.setKeyboard(keyboard);
+
+        SendMessage message = new SendMessage(chatId, text);
+        message.setReplyMarkup(markup);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            log.error("Ошибка отправки сообщения", e);
+        }
     }
 
     private ReplyKeyboardMarkup createReplyKeyboardMarkup() {
@@ -126,7 +191,7 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         List<InlineKeyboardButton> row = new ArrayList<>();
 
         InlineKeyboardButton button1 = new InlineKeyboardButton();
-        button1.setText("Нажми меня");
+        button1.setText("Уведомить ревьюера");
         button1.setCallbackData("button_pressed");
 
         row.add(button1);
@@ -160,7 +225,8 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         );
 
         sendMessage(
-                String.valueOf(update.getMessage().getChatId()), formattedText
+                String.valueOf(update.getMessage().getChatId()),
+                formattedText
         );
 
         String telegramUserName = update.getMessage().getChat().getUserName();
