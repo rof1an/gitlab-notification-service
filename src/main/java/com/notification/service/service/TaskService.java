@@ -3,7 +3,6 @@ package com.notification.service.service;
 import com.notification.service.entity.Task;
 import com.notification.service.model.TaskStatus;
 import com.notification.service.repository.TaskRepository;
-import com.notification.service.util.TaskLogger;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,8 +16,6 @@ public class TaskService {
     private final TaskRepository taskRepository;
 
     private final NotificationService notificationService;
-
-    private final TaskLogger taskLogger;
 
     public Task createTask(Task task) {
         task.setStatus(TaskStatus.OPEN);
