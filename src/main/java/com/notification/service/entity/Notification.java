@@ -24,7 +24,4 @@ public class Notification {
 
     @OneToOne(cascade = CascadeType.ALL)
     private Task task;
-
-    @Column(name = "is_read", nullable = false)
-    private boolean isRead;
 }
