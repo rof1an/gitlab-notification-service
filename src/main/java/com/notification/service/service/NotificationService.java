@@ -74,4 +74,8 @@ public class NotificationService {
                     return notificationRepository.save(newNotification);
                 });
     }
+
+    public void deleteNotification(Long notificationId){
+        notificationRepository.deleteById(notificationId);
+    }
 }
