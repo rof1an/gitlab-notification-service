@@ -2,6 +2,7 @@ package com.notification.service.service;
 
 import com.notification.service.entity.Task;
 import com.notification.service.model.TaskStatus;
+import com.notification.service.model.UserRole;
 import com.notification.service.repository.TaskRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,16 @@ public class TaskService {
     public Task getTaskById(Long id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Task with id " + id + " not found"));
+    }
+
+    public Task getTaskByUser(Long userId, UserRole role) {
+        if (role == UserRole.DEVELOPER) {
+            return taskRepository.findByDeveloperId(userId);
+        }
+        if (role == UserRole.REVIEWER) {
+            return taskRepository.findByReviewerId(userId);
+        }
+        throw new IllegalArgumentException("Unsupported role: " + role);
     }
 
     public List<Task> getAllTasks() {

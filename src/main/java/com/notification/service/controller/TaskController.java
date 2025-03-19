@@ -18,6 +18,7 @@ import java.util.List;
 public class TaskController {
 
     private final TaskMapper mapper;
+
     private final TaskService taskService;
 
     @PostMapping
@@ -55,7 +56,7 @@ public class TaskController {
     @PostMapping("/{taskId}/accept-threshold")
     @Operation(summary = "Подтвердить отправку threshold для девелопера")
     public void acceptThresholdTaskNotify(@PathVariable("taskId") Long taskId) {
-        taskService.acceptThresholdTaskNotify(taskId);
+        taskService.confirmThresholdTaskNotify(taskId);
     }
 
     @GetMapping
