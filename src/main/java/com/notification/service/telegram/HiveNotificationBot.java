@@ -104,22 +104,12 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
                         Long notificationIdByDeveloperId = notificationService.
                                 getNotificationByDeveloperId(task.getDeveloper().getId()).getId();
 
-                        notificationService.setNotificationRed(notificationIdByDeveloperId, true);
                         sendMessage(chatId, "✅ Ревьюер успешно уведомлен!");
-                    }
-                    case "accept_threshold" -> {
-                        taskService.acceptThresholdTaskNotify(taskId);
-                        sendMessage(chatId, "✅ Уведомление разработчика отправлено!");
+                        notificationService.setNotificationRed(notificationIdByDeveloperId, true);
+
+                        // логика для отправки уведоомления ревьюеру о МР
                     }
                     default -> sendMessage(chatId, "⚠️ Неизвестная команда: " + data);
-                }
-            } else {
-                // Обработка простых команд без taskId (например, button_pressed)
-                switch (data) {
-                    case "button_pressed" ->
-                            sendMessage(chatId, "Вы нажали на тестовую кнопку! 🎉");
-                    default ->
-                            sendMessage(chatId, "⚠️ Неизвестная команда: " + data);
                 }
             }
         } catch (Exception e) {

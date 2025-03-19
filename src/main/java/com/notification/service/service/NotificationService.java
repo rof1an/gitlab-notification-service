@@ -29,6 +29,7 @@ public class NotificationService {
                 .orElseThrow(() -> new EntityNotFoundException("Notification with id " + notificationId + " not found"));
 
         notificationById.setRead(true);
+        notificationRepository.save(notificationById);
     }
 
     public void notifyDeveloper(Task task) {

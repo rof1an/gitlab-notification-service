@@ -98,7 +98,7 @@ public class TaskService {
     public Task notifyReviewerTask(Long taskId) {
         Task task = getTaskById(taskId);
 
-        if (task.getStatus() == TaskStatus.REVIEW) {
+        if (task.getStatus() == TaskStatus.OPEN) {
             notificationService.notifyReviewer(task);
         }
 
