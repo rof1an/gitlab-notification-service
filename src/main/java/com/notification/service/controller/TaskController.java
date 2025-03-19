@@ -27,12 +27,6 @@ public class TaskController {
         return mapper.toDto(savedTask);
     }
 
-    @PostMapping("/{taskId}/notify-task/developer")
-    @Operation(summary = "Уведомить разработчика о новом MR")
-    public void notifyDeveloper(@PathVariable("taskId") Long taskId) {
-        taskService.notifyDeveloperTask(taskId);
-    }
-
     @PostMapping("/{taskId}/notify-task/reviewer")
     @Operation(summary = "Уведомить ревьюера о новом MR")
     public void notifyReviewer(@PathVariable("taskId") Long taskId) {
@@ -68,7 +62,7 @@ public class TaskController {
     @GetMapping("{id}/user")
     @Operation(summary = "Получить MR для пользователя")
     public TaskDto getTaskByUser(@PathVariable("id") Long userId,
-                                        @RequestParam(value = "status", required = false) UserRole role) {
+                                 @RequestParam(value = "status", required = false) UserRole role) {
         Task task = taskService.getTaskByUser(userId, role);
         return mapper.toDto(task);
     }

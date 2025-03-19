@@ -75,15 +75,6 @@ public class TaskService {
         return taskRepository.save(taskById);
     }
 
-    public void notifyDeveloperTask(Long taskId) {
-        Task newTaskById = taskRepository.findById(taskId)
-                .orElseThrow(() -> new EntityNotFoundException("Task with id " + taskId + " not found"));
-
-        if (newTaskById.getStatus() != TaskStatus.CLOSED) {
-            notificationService.notifyDeveloper(newTaskById);
-        }
-    }
-
     public Task notifyReviewerTask(Long taskId) {
         Task task = getTaskById(taskId);
 
