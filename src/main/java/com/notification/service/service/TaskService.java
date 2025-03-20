@@ -64,8 +64,7 @@ public class TaskService {
     public Task getTaskByUser(Long userId, UserRole role) {
         if (role == UserRole.DEVELOPER) {
             return taskRepository.findByDeveloperId(userId);
-        }
-        if (role == UserRole.REVIEWER) {
+        } else if (role == UserRole.REVIEWER) {
             return taskRepository.findByReviewerId(userId);
         }
         throw new IllegalArgumentException("Unsupported role: " + role);

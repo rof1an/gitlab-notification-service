@@ -34,8 +34,7 @@ public class UserService {
     }
 
     public void updateUserDataByTelegramUsername(String username, Long telegramChatId) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with username = " + username));
+        User user = findUserByTelegramUsername(username);
 
         user.setTelegramChatId(telegramChatId);
         userRepository.save(user);
