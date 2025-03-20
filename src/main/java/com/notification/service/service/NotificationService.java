@@ -3,7 +3,7 @@ package com.notification.service.service;
 import com.notification.service.entity.Notification;
 import com.notification.service.entity.Task;
 import com.notification.service.repository.NotificationRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.notification.service.telegram.TelegramStub;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,67 +15,47 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
-    public void saveNotification(String message, Notification notification) {
-        notification.setMessage(message);
-        notificationRepository.save(notification);
-    }
-
-    public List<Notification> getNotifications() {
-        return notificationRepository.findAll();
-    }
+    private final TelegramStub telegramStub;
 
     public void notifyDeveloper(Task task) {
         String message = String.format("Новая задача для разработчика: %s\nСсылка: %s",
                 task.getTitle(), task.getLinkToMr());
 
-        long developerId = task.getDeveloper().getId();
-        saveNotification(message, getOrCreateNotificationByDeveloperId(task, message));
+        saveNotification(message, createNotificationByTask(task, message));
     }
 
     public void notifyReviewer(Task task) {
         String message = String.format("Новая задача на ревью: %s\nСсылка: %s",
                 task.getTitle(), task.getLinkToMr());
 
-        saveNotification(message, getOrCreateNotificationByReviewerId(task));
+        saveNotification(message, createNotificationByTask(task, message));
     }
 
-    public void notifyThresholdReviewerWithConfirmation(Task task) {
-        String message = "Threshold отслежен. Подтвердите отправку чтобы отправить разработчику";
+    public void saveNotification(String message, Notification notification) {
+        notification.setMessage(message);
+        notificationRepository.save(notification);
+    }
 
-        saveNotification(message, getOrCreateNotificationByReviewerId(task));
+    public Notification createNotificationByTask(Task task, String message) {
+        Notification notification = new Notification();
+        notification.setMessage(message);
+        notification.setTask(task);
+        return notificationRepository.save(notification);
+    }
+
+    public List<Notification> getAllNotifications() {
+        return notificationRepository.findAll();
+    }
+
+    public void notifyThresholdReviewer(Task task) {
+        telegramStub.sendThresholdReviewerMessage(task);
     }
 
     public void confirmThresholdTaskNotifyToDeveloper(Task task) {
-        String message = "Ревьюер подтведил threshold, уведомляем разработчика...";
-
-        saveNotification(message, getOrCreateNotificationByDeveloperId(task, message));
+        telegramStub.confirmThresholdTaskNotifyToDeveloper(task);
     }
 
-    public Notification getNotificationByDeveloperId(Long developerId) {
-        return notificationRepository.findByTaskDeveloperId(developerId)
-                .orElseThrow(() -> new EntityNotFoundException("Notification with id " + developerId + " not found"));
-    }
-
-    public Notification getOrCreateNotificationByDeveloperId(Task task, String notificationMessage) {
-        return notificationRepository.findByTaskDeveloperId(task.getDeveloper().getId())
-                .orElseGet(() -> {
-                    Notification newNotification = new Notification();
-                    newNotification.setMessage(notificationMessage);
-                    newNotification.setTask(task);
-                    return notificationRepository.save(newNotification);
-                });
-    }
-
-    public Notification getOrCreateNotificationByReviewerId(Task task) {
-        return notificationRepository.findByTaskReviewerId(task.getReviewer().getId())
-                .orElseGet(() -> {
-                    Notification newNotification = new Notification();
-                    newNotification.setTask(task);
-                    return notificationRepository.save(newNotification);
-                });
-    }
-
-    public void deleteNotification(Long notificationId){
+    public void deleteNotificationById(Long notificationId) {
         notificationRepository.deleteById(notificationId);
     }
 }

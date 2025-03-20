@@ -14,20 +14,12 @@ public class TelegramStub {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final NotificationPrinter notificationPrinter = new NotificationPrinter();
 
-    public void sendDeveloperMessage(Task task) {
-        notificationPrinter.logTasks(task, UserRole.DEVELOPER);
-    }
-
-    public void sendReviewerMessage(Task task) {
-        notificationPrinter.logTasks(task, UserRole.REVIEWER);
-    }
-
     public void sendThresholdReviewerMessage(Task task) {
         notificationPrinter.notifyToReviewerAboutThreshold(task);
     }
 
-    public void acceptThresholdTaskNotify(Task task) {
-        notificationPrinter.acceptThresholdTaskNotify(task);
+    public void confirmThresholdTaskNotifyToDeveloper(Task task) {
+        notificationPrinter.confirmThresholdTaskNotifyToDeveloper(task);
     }
 
     public class NotificationPrinter {
@@ -54,7 +46,7 @@ public class TelegramStub {
             logTasks(task, UserRole.REVIEWER);
         }
 
-        private void acceptThresholdTaskNotify(Task task) {
+        private void confirmThresholdTaskNotifyToDeveloper(Task task) {
             System.out.println("Ревьюер подтведил threshold, уведомляем разработчика...");
             logTasks(task, UserRole.REVIEWER);
         }

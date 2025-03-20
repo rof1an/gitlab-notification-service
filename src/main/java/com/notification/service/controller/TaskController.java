@@ -28,12 +28,6 @@ public class TaskController {
         return mapper.toDto(savedTask);
     }
 
-    @PostMapping("/{taskId}/notify-task/developer")
-    @Operation(summary = "Уведомить разработчика о новом MR")
-    public void notifyDeveloper(@PathVariable("taskId") Long taskId) {
-        taskService.notifyDeveloperTask(taskId);
-    }
-
     @PostMapping("/{taskId}/notify-task/reviewer")
     @Operation(summary = "Уведомить ревьюера о новом MR")
     public void notifyReviewer(@PathVariable("taskId") Long taskId) {

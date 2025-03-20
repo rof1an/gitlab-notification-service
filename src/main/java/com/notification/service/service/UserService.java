@@ -28,6 +28,19 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public User findUserByTelegramUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User with username " + username + " not found"));
+    }
+
+    public void updateUserDataByTelegramUsername(String username, Long telegramChatId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with username = " + username));
+
+        user.setTelegramChatId(telegramChatId);
+        userRepository.save(user);
+    }
+
     public User updateUserData(long id, User newUserData) {
         User existingUser = findById(id);
 

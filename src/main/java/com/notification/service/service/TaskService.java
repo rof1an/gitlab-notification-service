@@ -24,11 +24,19 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
+    public void notifyReviewerTask(Long taskId) {
+        Task task = getTaskById(taskId);
+
+        if (task.getStatus() == TaskStatus.OPEN) {
+            notificationService.notifyReviewer(task);
+        }
+    }
+
     public void notifyThresholdTask(Long taskId) {
         Task task = getTaskById(taskId);
 
         if (task.getStatus() != TaskStatus.CLOSED) {
-            notificationService.notifyThresholdReviewerWithConfirmation(task);
+            notificationService.notifyThresholdReviewer(task);
         }
     }
 
@@ -73,24 +81,5 @@ public class TaskService {
 
         taskById.setStatus(status);
         return taskRepository.save(taskById);
-    }
-
-    public void notifyDeveloperTask(Long taskId) {
-        Task newTaskById = taskRepository.findById(taskId)
-                .orElseThrow(() -> new EntityNotFoundException("Task with id " + taskId + " not found"));
-
-        if (newTaskById.getStatus() != TaskStatus.CLOSED) {
-            notificationService.notifyDeveloper(newTaskById);
-        }
-    }
-
-    public Task notifyReviewerTask(Long taskId) {
-        Task task = getTaskById(taskId);
-
-        if (task.getStatus() == TaskStatus.OPEN) {
-            notificationService.notifyReviewer(task);
-        }
-
-        return task;
     }
 }
