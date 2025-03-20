@@ -18,6 +18,7 @@ import java.util.List;
 public class TaskController {
 
     private final TaskMapper mapper;
+
     private final TaskService taskService;
 
     @PostMapping
@@ -25,12 +26,6 @@ public class TaskController {
     public TaskDto createTask(@RequestBody TaskDto taskDto) {
         Task savedTask = taskService.createTask(mapper.toModel(taskDto));
         return mapper.toDto(savedTask);
-    }
-
-    @PostMapping("/{taskId}/notify-task/developer")
-    @Operation(summary = "Уведомить разработчика о новом MR")
-    public void notifyDeveloper(@PathVariable("taskId") Long taskId) {
-        taskService.notifyDeveloperTask(taskId);
     }
 
     @PostMapping("/{taskId}/notify-task/reviewer")
@@ -55,7 +50,7 @@ public class TaskController {
     @PostMapping("/{taskId}/accept-threshold")
     @Operation(summary = "Подтвердить отправку threshold для девелопера")
     public void acceptThresholdTaskNotify(@PathVariable("taskId") Long taskId) {
-        taskService.acceptThresholdTaskNotify(taskId);
+        taskService.confirmThresholdTaskNotify(taskId);
     }
 
     @GetMapping

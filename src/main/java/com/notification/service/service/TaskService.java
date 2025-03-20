@@ -4,13 +4,11 @@ import com.notification.service.entity.Task;
 import com.notification.service.model.TaskStatus;
 import com.notification.service.model.UserRole;
 import com.notification.service.repository.TaskRepository;
-import com.notification.service.util.TaskLogger;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,12 +18,18 @@ public class TaskService {
 
     private final NotificationService notificationService;
 
-    private final TaskLogger taskLogger;
-
     public Task createTask(Task task) {
         task.setStatus(TaskStatus.OPEN);
         notificationService.notifyDeveloper(task);
         return taskRepository.save(task);
+    }
+
+    public void notifyReviewerTask(Long taskId) {
+        Task task = getTaskById(taskId);
+
+        if (task.getStatus() == TaskStatus.OPEN) {
+            notificationService.notifyReviewer(task);
+        }
     }
 
     public void notifyThresholdTask(Long taskId) {
@@ -36,12 +40,12 @@ public class TaskService {
         }
     }
 
-    public void acceptThresholdTaskNotify(Long taskId){
+    public void confirmThresholdTaskNotify(Long taskId) {
         Task task = getTaskById(taskId);
 
         if (task.getStatus() != TaskStatus.CLOSED) {
             task.setStatus(TaskStatus.NEED_FIXES);
-            notificationService.acceptThresholdTaskNotify(task);
+            notificationService.confirmThresholdTaskNotifyToDeveloper(task);
         }
     }
 
@@ -51,29 +55,19 @@ public class TaskService {
         return taskRepository.save(taskById);
     }
 
-    public Task getTaskByUser(Long userId, UserRole role) {
-        if (Optional.ofNullable(role).isPresent()) {
-            if (role.equals(UserRole.DEVELOPER)) {
-                Task task = taskRepository.findByDeveloperId(userId);
-                taskLogger.logTask(task, UserRole.DEVELOPER);
-
-                return task;
-            }
-
-            if (role.equals(UserRole.REVIEWER)) {
-                Task task = taskRepository.findByReviewerId(userId);
-                taskLogger.logTask(task, UserRole.REVIEWER);
-
-                return task;
-            }
-        }
-
-        throw new IllegalArgumentException("User role cannot be null");
-    }
 
     public Task getTaskById(Long id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Task with id " + id + " not found"));
+    }
+
+    public Task getTaskByUser(Long userId, UserRole role) {
+        if (role == UserRole.DEVELOPER) {
+            return taskRepository.findByDeveloperId(userId);
+        } else if (role == UserRole.REVIEWER) {
+            return taskRepository.findByReviewerId(userId);
+        }
+        throw new IllegalArgumentException("Unsupported role: " + role);
     }
 
     public List<Task> getAllTasks() {
@@ -86,23 +80,5 @@ public class TaskService {
 
         taskById.setStatus(status);
         return taskRepository.save(taskById);
-    }
-
-    public void notifyDeveloperTask(Long taskId) {
-        Task newTaskById = taskRepository.findById(taskId)
-                .orElseThrow(() -> new EntityNotFoundException("Task with id " + taskId + " not found"));
-
-        if (newTaskById.getStatus() != TaskStatus.CLOSED) {
-            notificationService.notifyDeveloper(newTaskById);
-        }
-    }
-
-    public void notifyReviewerTask(Long taskId) {
-        Task newTaskById = taskRepository.findById(taskId)
-                .orElseThrow(() -> new EntityNotFoundException("Task with id " + taskId + " not found"));
-
-        if (newTaskById.getStatus() != TaskStatus.CLOSED) {
-            notificationService.notifyReviewer(newTaskById);
-        }
     }
 }
