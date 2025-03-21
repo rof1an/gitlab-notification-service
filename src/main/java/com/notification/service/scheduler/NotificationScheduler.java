@@ -28,21 +28,29 @@ public class NotificationScheduler {
         notifications.forEach(notification -> {
             switch (notification.getNotificationType()) {
                 case SEND_DEVELOPER_NEW_MR -> {
-                    hiveNotificationBot.sendDeveloperNewTaskMessageWithConfirmation(
-                            String.valueOf(notification.getTask().getDeveloper().getTelegramChatId()),
-                            "Новый MR создан! Нажмите кнопку, чтобы уведомить ревьюера.",
-                            notification.getTask().getId()
-                    );
-                    notificationService.deleteNotificationById(notification.getId());
+                    handleSendDeveloperNewMrNotification(notification);
                 }
                 case SEND_REVIEWER_NEW_MR -> {
-                    hiveNotificationBot.sendMessage(
-                            String.valueOf(notification.getTask().getReviewer().getTelegramChatId()),
-                            "Получен новый МР на проверку!"
-                    );
-                    notificationService.deleteNotificationById(notification.getId());
+                    handleSendReviewerNewMrNotification(notification);
                 }
             }
         });
+    }
+
+    public void handleSendDeveloperNewMrNotification(Notification notification) {
+        hiveNotificationBot.sendDeveloperNewTaskMessageWithConfirmation(
+                String.valueOf(notification.getTask().getDeveloper().getTelegramChatId()),
+                "Новый MR создан! Нажмите кнопку, чтобы уведомить ревьюера.",
+                notification.getTask().getId()
+        );
+        notificationService.deleteNotificationById(notification.getId());
+    }
+
+    public void handleSendReviewerNewMrNotification(Notification notification) {
+        hiveNotificationBot.sendMessage(
+                String.valueOf(notification.getTask().getReviewer().getTelegramChatId()),
+                "Получен новый МР на проверку!"
+        );
+        notificationService.deleteNotificationById(notification.getId());
     }
 }
