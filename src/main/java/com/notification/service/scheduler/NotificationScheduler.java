@@ -22,18 +22,27 @@ public class NotificationScheduler {
     @Scheduled(fixedRate = 5000)
     public void scheduleNotifications() {
         List<Notification> notifications = notificationService.getAllNotifications().stream()
-                .filter(notification -> {
-                    return notification.getTask().getStatus().equals(TaskStatus.OPEN);
-                })
+                .filter(notification -> notification.getTask().getStatus().equals(TaskStatus.OPEN))
                 .toList();
 
         notifications.forEach(notification -> {
-            hiveNotificationBot.sendMessageWithConfirmation(
-                    String.valueOf(notification.getTask().getDeveloper().getTelegramChatId()),
-                    "Новый MR создан! Нажмите кнопку, чтобы уведомить ревьюера.",
-                    notification.getTask().getId()
-            );
-            notificationService.deleteNotificationById(notification.getId());
+            switch (notification.getNotificationType()) {
+                case SEND_DEVELOPER_NEW_MR -> {
+                    hiveNotificationBot.sendDeveloperNewTaskMessageWithConfirmation(
+                            String.valueOf(notification.getTask().getDeveloper().getTelegramChatId()),
+                            "Новый MR создан! Нажмите кнопку, чтобы уведомить ревьюера.",
+                            notification.getTask().getId()
+                    );
+                    notificationService.deleteNotificationById(notification.getId());
+                }
+                case SEND_REVIEWER_NEW_MR -> {
+                    hiveNotificationBot.sendMessage(
+                            String.valueOf(notification.getTask().getReviewer().getTelegramChatId()),
+                            "Получен новый МР на проверку!"
+                    );
+                    notificationService.deleteNotificationById(notification.getId());
+                }
+            }
         });
     }
 }
