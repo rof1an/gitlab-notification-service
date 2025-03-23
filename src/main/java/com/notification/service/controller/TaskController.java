@@ -37,7 +37,7 @@ public class TaskController {
     @PostMapping("/{taskId}/merge")
     @Operation(summary = "Смержить МР")
     public TaskDto mergeTask(@PathVariable("taskId") Long id) {
-        Task mergedTask = taskService.mergedTask(id);
+        Task mergedTask = taskService.mergeTask(id);
         return mapper.toDto(mergedTask);
     }
 

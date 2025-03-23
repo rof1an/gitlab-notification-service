@@ -22,18 +22,24 @@ public class NotificationService {
         String message = String.format("Новая задача для разработчика: %s\nСсылка: %s",
                 task.getTitle(), task.getLinkToMr());
 
-        saveNotification(message, createNotificationByTask(task, message, NotificationType.SEND_DEVELOPER_NEW_MR));
+        saveNotification(createNotificationByTask(task, message, NotificationType.SEND_DEVELOPER_NEW_MR));
     }
 
     public void notifyReviewer(Task task) {
         String message = String.format("Новая задача на ревью: %s\nСсылка: %s",
                 task.getTitle(), task.getLinkToMr());
 
-        saveNotification(message, createNotificationByTask(task, message, NotificationType.SEND_DEVELOPER_NEW_MR));
+        saveNotification(createNotificationByTask(task, message, NotificationType.SEND_DEVELOPER_NEW_MR));
     }
 
-    public void saveNotification(String message, Notification notification) {
-        notification.setMessage(message);
+    public void notifyDeveloperMergedTask(Task mergedTask) {
+        String message = String.format("Ваш MR был успешно смержен!: %s\nСсылка: %s\nReviewer: %s",
+                mergedTask.getTitle(), mergedTask.getLinkToMr(), mergedTask.getReviewer().getUsername());
+
+        saveNotification(createNotificationByTask(mergedTask, message, NotificationType.SEND_DEVELOPER_MERGED_MR));
+    }
+
+    public void saveNotification(Notification notification) {
         notificationRepository.save(notification);
     }
 
