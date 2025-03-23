@@ -20,8 +20,9 @@ public class TaskService {
 
     public Task createTask(Task task) {
         task.setStatus(TaskStatus.OPEN);
+        Task savedTask = taskRepository.save(task);
         notificationService.notifyDeveloper(task);
-        return taskRepository.save(task);
+        return savedTask;
     }
 
     public void notifyReviewerTask(Long taskId) {

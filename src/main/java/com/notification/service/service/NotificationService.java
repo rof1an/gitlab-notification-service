@@ -2,6 +2,7 @@ package com.notification.service.service;
 
 import com.notification.service.entity.Notification;
 import com.notification.service.entity.Task;
+import com.notification.service.model.NotificationType;
 import com.notification.service.repository.NotificationRepository;
 import com.notification.service.telegram.TelegramStub;
 import lombok.RequiredArgsConstructor;
@@ -21,14 +22,14 @@ public class NotificationService {
         String message = String.format("Новая задача для разработчика: %s\nСсылка: %s",
                 task.getTitle(), task.getLinkToMr());
 
-        saveNotification(message, createNotificationByTask(task, message));
+        saveNotification(message, createNotificationByTask(task, message, NotificationType.SEND_DEVELOPER_NEW_MR));
     }
 
     public void notifyReviewer(Task task) {
         String message = String.format("Новая задача на ревью: %s\nСсылка: %s",
                 task.getTitle(), task.getLinkToMr());
 
-        saveNotification(message, createNotificationByTask(task, message));
+        saveNotification(message, createNotificationByTask(task, message, NotificationType.SEND_DEVELOPER_NEW_MR));
     }
 
     public void saveNotification(String message, Notification notification) {
@@ -36,8 +37,9 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
-    public Notification createNotificationByTask(Task task, String message) {
+    public Notification createNotificationByTask(Task task, String message, NotificationType notificationType) {
         Notification notification = new Notification();
+        notification.setNotificationType(notificationType);
         notification.setMessage(message);
         notification.setTask(task);
         return notificationRepository.save(notification);
