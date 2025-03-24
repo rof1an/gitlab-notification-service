@@ -61,12 +61,4 @@ public class NotificationScheduler {
         );
         notificationService.deleteNotificationById(notification.getId());
     }
-
-//    private void baseHandleNotification(Notification notification) {
-//        hiveNotificationBot.sendMessage(
-//                String.valueOf(notification.getTask().getReviewer().getTelegramChatId()),
-//                notification.getMessage()
-//        );
-//        notificationService.deleteNotificationById(notification.getId());
-//    }
 }
