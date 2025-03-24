@@ -19,7 +19,7 @@ public class NotificationService {
     private final TelegramStub telegramStub;
 
     public void notifyDeveloper(Task task) {
-        String message = String.format("Новая задача для разработчика: %s\nСсылка: %s",
+        String message = String.format("Новый МР/Новые изменения в МР: %s\nСсылка: %s",
                 task.getTitle(), task.getLinkToMr());
 
         saveNotification(createNotificationByTask(task, message, NotificationType.SEND_DEVELOPER_NEW_MR));
