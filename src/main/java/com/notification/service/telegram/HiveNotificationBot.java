@@ -124,6 +124,10 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         );
     }
 
+    public void sendDeveloperMergedTakNotification(String chatId, String text){
+        sendMessage(chatId, text);
+    }
+
     private void startCommand(Update update) {
         String formattedText = String.format("""
                         Добро пожаловать в бот, %s.

@@ -1,7 +1,6 @@
 package com.notification.service.scheduler;
 
 import com.notification.service.entity.Notification;
-import com.notification.service.model.TaskStatus;
 import com.notification.service.service.NotificationService;
 import com.notification.service.telegram.HiveNotificationBot;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +20,7 @@ public class NotificationScheduler {
 
     @Scheduled(fixedRate = 5000)
     public void scheduleNotifications() {
-        List<Notification> notifications = notificationService.getAllNotifications().stream()
-                .filter(notification -> notification.getTask().getStatus().equals(TaskStatus.OPEN))
-                .toList();
+        List<Notification> notifications = notificationService.getAllNotifications();
 
         notifications.forEach(notification -> {
             switch (notification.getNotificationType()) {
@@ -33,23 +30,34 @@ public class NotificationScheduler {
                 case SEND_REVIEWER_NEW_MR -> {
                     handleSendReviewerNewMrNotification(notification);
                 }
+                case SEND_DEVELOPER_MERGED_MR -> {
+                    handleSendDeveloperMergedTakNotification(notification);
+                }
             }
         });
     }
 
-    public void handleSendDeveloperNewMrNotification(Notification notification) {
+    private void handleSendDeveloperMergedTakNotification(Notification notification) {
+        hiveNotificationBot.sendDeveloperMergedTakNotification(
+                String.valueOf(notification.getTask().getDeveloper().getTelegramChatId()),
+                notification.getMessage()
+        );
+        notificationService.deleteNotificationById(notification.getId());
+    }
+
+    private void handleSendDeveloperNewMrNotification(Notification notification) {
         hiveNotificationBot.sendDeveloperNewTaskMessageWithConfirmation(
                 String.valueOf(notification.getTask().getDeveloper().getTelegramChatId()),
-                "Новый MR создан! Нажмите кнопку, чтобы уведомить ревьюера.",
+                notification.getMessage(),
                 notification.getTask().getId()
         );
         notificationService.deleteNotificationById(notification.getId());
     }
 
-    public void handleSendReviewerNewMrNotification(Notification notification) {
+    private void handleSendReviewerNewMrNotification(Notification notification) {
         hiveNotificationBot.sendMessage(
                 String.valueOf(notification.getTask().getReviewer().getTelegramChatId()),
-                "Получен новый МР на проверку!"
+                notification.getMessage()
         );
         notificationService.deleteNotificationById(notification.getId());
     }

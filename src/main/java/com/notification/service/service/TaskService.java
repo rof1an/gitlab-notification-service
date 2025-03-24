@@ -50,12 +50,12 @@ public class TaskService {
         }
     }
 
-    public Task mergedTask(Long id) {
+    public Task mergeTask(Long id) {
         Task taskById = getTaskById(id);
         taskById.setStatus(TaskStatus.CLOSED);
+        notificationService.notifyDeveloperMergedTask(taskById);
         return taskRepository.save(taskById);
     }
-
 
     public Task getTaskById(Long id) {
         return taskRepository.findById(id)
