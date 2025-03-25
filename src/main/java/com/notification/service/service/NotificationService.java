@@ -56,7 +56,9 @@ public class NotificationService {
     }
 
     public void notifyThresholdReviewer(Task task) {
-        telegramStub.sendThresholdReviewerMessage(task);
+        String message = String.format("Отслежен новый threshold, подтвердите отправку девелоперу");
+
+        saveNotification(createNotificationByTask(task, message, NotificationType.SEND_REVIEWER_THRESHOLD_ACCEPT));
     }
 
     public void confirmThresholdTaskNotifyToDeveloper(Task task) {

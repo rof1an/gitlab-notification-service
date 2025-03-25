@@ -33,12 +33,24 @@ public class NotificationScheduler {
                 case SEND_DEVELOPER_MERGED_MR -> {
                     handleSendDeveloperMergedTakNotification(notification);
                 }
+                case SEND_REVIEWER_THRESHOLD_ACCEPT -> {
+                    handleSendReviewerThresholdAccept(notification);
+                }
             }
         });
     }
 
+    private void handleSendReviewerThresholdAccept(Notification notification) {
+        hiveNotificationBot.sendReviewerThresholdAccept(
+                String.valueOf(notification.getTask().getReviewer().getTelegramChatId()),
+                notification.getMessage(),
+                notification.getTask().getId()
+        );
+        notificationService.deleteNotificationById(notification.getId());
+    }
+
     private void handleSendDeveloperMergedTakNotification(Notification notification) {
-        hiveNotificationBot.sendDeveloperMergedTakNotification(
+        hiveNotificationBot.sendMessage(
                 String.valueOf(notification.getTask().getDeveloper().getTelegramChatId()),
                 notification.getMessage()
         );
