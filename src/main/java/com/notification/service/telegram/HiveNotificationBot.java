@@ -3,6 +3,7 @@ package com.notification.service.telegram;
 
 import com.notification.service.entity.Task;
 import com.notification.service.entity.User;
+import com.notification.service.model.NotificationType;
 import com.notification.service.model.TaskStatus;
 import com.notification.service.service.TaskService;
 import com.notification.service.service.UserService;
@@ -60,33 +61,27 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         }
     }
 
-    public void sendDeveloperNewTaskMessageWithConfirmation(String chatId, String text, Long taskId) {
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        InlineKeyboardButton button = new InlineKeyboardButton();
-
-        button.setText("Уведомить ревьюера");
-        button.setCallbackData("confirm_reviewer:" + taskId);
-
-        keyboard.add(List.of(button));
-        markup.setKeyboard(keyboard);
-
-        SendMessage message = new SendMessage(chatId, text);
-        message.setReplyMarkup(markup);
-
-        try {
-            execute(message);
-        } catch (TelegramApiException e) {
-            log.error("Ошибка отправки сообщения", e);
-        }
-    }
-
     private void handleCallback(CallbackQuery callbackQuery) {
         String data = callbackQuery.getData();
+        String sendDeveloperNewMr = String.valueOf(NotificationType.SEND_DEVELOPER_NEW_MR);
+        String sendReviewerThreshold = String.valueOf(NotificationType.SEND_REVIEWER_THRESHOLD_ACCEPT);
 
-        if (data.startsWith("confirm_reviewer:")) {
-            Long taskId = Long.parseLong(data.split(":")[1]);
-            handleReviewerConfirmation(callbackQuery, taskId);
+        if (data.startsWith(sendDeveloperNewMr)) {
+            String[] parts = data.split(":");
+
+            if (parts.length > 1) {
+                Long taskId = Long.parseLong(parts[1]);
+                handleNewMrDeveloperConfirmation(callbackQuery, taskId);
+            }
+        } else {
+            if (data.startsWith(sendReviewerThreshold)) {
+                String[] parts = data.split(":");
+
+                if (parts.length > 1) {
+                    Long taskId = Long.parseLong(parts[1]);
+                    handleAcceptThresholdReviewerConfirmation(callbackQuery, taskId);
+                }
+            }
         }
 
         AnswerCallbackQuery answer = new AnswerCallbackQuery();
@@ -99,7 +94,37 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         }
     }
 
-    private void handleReviewerConfirmation(CallbackQuery callbackQuery, Long taskId) {
+    public void sendDeveloperNewTaskMessageWithConfirmation(String chatId, String text, Long taskId) {
+        String buttonText = "Уведомить ревьюера";
+        InlineKeyboardMarkup markup =
+                createInlineKeyboardMarkup(buttonText, NotificationType.SEND_DEVELOPER_NEW_MR, taskId);
+
+        SendMessage message = new SendMessage(chatId, text);
+        message.setReplyMarkup(markup);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            log.error("Ошибка отправки сообщения", e);
+        }
+    }
+
+    public void sendReviewerThresholdAccept(String chatId, String text, Long taskId) {
+        String buttonText = "Уведомить девелопера";
+        InlineKeyboardMarkup markup =
+                createInlineKeyboardMarkup(buttonText, NotificationType.SEND_REVIEWER_THRESHOLD_ACCEPT, taskId);
+
+        SendMessage message = new SendMessage(chatId, text);
+        message.setReplyMarkup(markup);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            log.error("Ошибка отправки сообщения", e);
+        }
+    }
+
+    private void handleNewMrDeveloperConfirmation(CallbackQuery callbackQuery, Long taskId) {
         Task task = taskService.getTaskById(taskId);
         String reviewerChatId = String.valueOf(task.getReviewer().getTelegramChatId());
 
@@ -124,8 +149,42 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         );
     }
 
-    public void sendDeveloperMergedTakNotification(String chatId, String text){
-        sendMessage(chatId, text);
+    private void handleAcceptThresholdReviewerConfirmation(CallbackQuery callbackQuery, Long taskId) {
+        Task task = taskService.getTaskById(taskId);
+        String developerChatId = String.valueOf(task.getDeveloper().getTelegramChatId());
+
+        String messageText = String.format("""
+                        Новый threshold в МР: %s
+                        Ссылка на Merge Request: %s
+                        Developer: %s
+                        Reviewer: %s
+                        """,
+                task.getTitle(),
+                task.getLinkToMr(),
+                task.getDeveloper().getUsername(),
+                task.getReviewer().getUsername()
+        );
+
+        sendMessage(developerChatId, messageText);
+        taskService.updateTaskStatus(taskId, TaskStatus.NEED_FIXES);
+
+        sendMessage(
+                callbackQuery.getMessage().getChatId().toString(),
+                "Девелопер уведомлен! ✅"
+        );
+    }
+
+    private InlineKeyboardMarkup createInlineKeyboardMarkup(String buttonText, NotificationType notificationType, Long taskId) {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        InlineKeyboardButton button = new InlineKeyboardButton();
+
+        button.setText(buttonText);
+        button.setCallbackData(notificationType + ":" + taskId);
+        keyboard.add(List.of(button));
+        markup.setKeyboard(keyboard);
+
+        return markup;
     }
 
     private void startCommand(Update update) {
