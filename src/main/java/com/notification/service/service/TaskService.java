@@ -57,6 +57,11 @@ public class TaskService {
         return taskRepository.save(taskById);
     }
 
+    public void sendNewFixOnThreshold(Long taskId) {
+        Task task = getTaskById(taskId);
+        notificationService.sendNewFixOnThreshold(task);
+    }
+
     public Task getTaskById(Long id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Task with id " + id + " not found"));

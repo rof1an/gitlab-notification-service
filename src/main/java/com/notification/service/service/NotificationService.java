@@ -56,13 +56,19 @@ public class NotificationService {
     }
 
     public void notifyThresholdReviewer(Task task) {
-        String message = String.format("Отслежен новый threshold, подтвердите отправку девелоперу");
+        String message = "Отслежен новый threshold, подтвердите отправку девелоперу";
 
         saveNotification(createNotificationByTask(task, message, NotificationType.SEND_REVIEWER_THRESHOLD_ACCEPT));
     }
 
     public void confirmThresholdTaskNotifyToDeveloper(Task task) {
         telegramStub.confirmThresholdTaskNotifyToDeveloper(task);
+    }
+
+    public void sendNewFixOnThreshold(Task task) {
+        String message = "Отслежено новое изменение на threshold, подтвердите отправку ревьюеру";
+
+        saveNotification(createNotificationByTask(task, message, NotificationType.SEND_DEVELOPER_THRESHOLD_FIX_ACCEPT));
     }
 
     public void deleteNotificationById(Long notificationId) {

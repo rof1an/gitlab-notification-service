@@ -36,6 +36,9 @@ public class NotificationScheduler {
                 case SEND_REVIEWER_THRESHOLD_ACCEPT -> {
                     handleSendReviewerThresholdAccept(notification);
                 }
+                case SEND_DEVELOPER_THRESHOLD_FIX_ACCEPT -> {
+                    handleSendDeveloperNewFixOnThresholdAccept(notification);
+                }
             }
         });
     }
@@ -70,6 +73,15 @@ public class NotificationScheduler {
         hiveNotificationBot.sendMessage(
                 String.valueOf(notification.getTask().getReviewer().getTelegramChatId()),
                 notification.getMessage()
+        );
+        notificationService.deleteNotificationById(notification.getId());
+    }
+
+    private void handleSendDeveloperNewFixOnThresholdAccept(Notification notification) {
+        hiveNotificationBot.handleSendDeveloperNewFixOnThresholdAccept(
+                String.valueOf(notification.getTask().getDeveloper().getTelegramChatId()),
+                notification.getMessage(),
+                notification.getTask().getId()
         );
         notificationService.deleteNotificationById(notification.getId());
     }
