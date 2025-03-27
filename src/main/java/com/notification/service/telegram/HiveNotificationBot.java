@@ -65,6 +65,7 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         String data = callbackQuery.getData();
         String sendDeveloperNewMr = String.valueOf(NotificationType.SEND_DEVELOPER_NEW_MR);
         String sendReviewerThreshold = String.valueOf(NotificationType.SEND_REVIEWER_THRESHOLD_ACCEPT);
+        String sendDeveloperThresholdNewFix = String.valueOf(NotificationType.SEND_DEVELOPER_THRESHOLD_FIX_ACCEPT);
 
         if (data.startsWith(sendDeveloperNewMr)) {
             String[] parts = data.split(":");
@@ -73,14 +74,19 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
                 Long taskId = Long.parseLong(parts[1]);
                 handleNewMrDeveloperConfirmation(callbackQuery, taskId);
             }
-        } else {
-            if (data.startsWith(sendReviewerThreshold)) {
-                String[] parts = data.split(":");
+        } else if (data.startsWith(sendReviewerThreshold)) {
+            String[] parts = data.split(":");
 
-                if (parts.length > 1) {
-                    Long taskId = Long.parseLong(parts[1]);
-                    handleAcceptThresholdReviewerConfirmation(callbackQuery, taskId);
-                }
+            if (parts.length > 1) {
+                Long taskId = Long.parseLong(parts[1]);
+                handleAcceptThresholdReviewerConfirmation(callbackQuery, taskId);
+            }
+        } else if (data.startsWith(sendDeveloperThresholdNewFix)) {
+            String[] parts = data.split(":");
+
+            if (parts.length > 1) {
+                Long taskId = Long.parseLong(parts[1]);
+                handleSendReviewerNewFixOnThresholdConfirmation(callbackQuery, taskId);
             }
         }
 
@@ -154,7 +160,8 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         String developerChatId = String.valueOf(task.getDeveloper().getTelegramChatId());
 
         String messageText = String.format("""
-                        Новый threshold в МР: %s
+                        Новый threshold в МР по таске: %s
+                        Нужны исправления.
                         Ссылка на Merge Request: %s
                         Developer: %s
                         Reviewer: %s
@@ -171,6 +178,46 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         sendMessage(
                 callbackQuery.getMessage().getChatId().toString(),
                 "Девелопер уведомлен! ✅"
+        );
+    }
+
+    public void handleSendDeveloperNewFixOnThresholdAccept(String chatId, String text, Long taskId) {
+        String buttonText = "Уведомить ревьюера";
+        InlineKeyboardMarkup markup =
+                createInlineKeyboardMarkup(buttonText, NotificationType.SEND_DEVELOPER_THRESHOLD_FIX_ACCEPT, taskId);
+
+        SendMessage message = new SendMessage(chatId, text);
+        message.setReplyMarkup(markup);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            log.error("Ошибка отправки сообщения", e);
+        }
+    }
+
+    private void handleSendReviewerNewFixOnThresholdConfirmation(CallbackQuery callbackQuery, Long taskId) {
+        Task task = taskService.getTaskById(taskId);
+        String developerChatId = String.valueOf(task.getReviewer().getTelegramChatId());
+
+        String messageText = String.format("""
+                        Новое изменение по threshold в МР по таске: %s
+                        Ссылка на Merge Request: %s
+                        Developer: %s
+                        Reviewer: %s
+                        """,
+                task.getTitle(),
+                task.getLinkToMr(),
+                task.getDeveloper().getUsername(),
+                task.getReviewer().getUsername()
+        );
+
+        sendMessage(developerChatId, messageText);
+        taskService.updateTaskStatus(taskId, TaskStatus.REVIEW);
+
+        sendMessage(
+                callbackQuery.getMessage().getChatId().toString(),
+                "Ревьюер уведомлен! ✅"
         );
     }
 

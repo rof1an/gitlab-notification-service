@@ -53,6 +53,12 @@ public class TaskController {
         taskService.confirmThresholdTaskNotify(taskId);
     }
 
+    @PostMapping("/{taskId}/fix")
+    @Operation(summary = "Отправка изменения в МР по трешхолду")
+    public void sendNewFixOnThreshold(@PathVariable("taskId") Long taskId) {
+        taskService.sendNewFixOnThreshold(taskId);
+    }
+
     @GetMapping
     @Operation(summary = "Получить все MR")
     public List<TaskDto> getTasks() {
