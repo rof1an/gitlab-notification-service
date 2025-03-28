@@ -31,7 +31,7 @@ public class TaskController {
     @PostMapping("/{taskId}/notify-task/reviewer")
     @Operation(summary = "Уведомить ревьюера о новом MR")
     public void notifyReviewer(@PathVariable("taskId") Long taskId) {
-        taskService.notifyReviewerTask(taskId);
+        taskService.notifyReviewerNewMrMessage(taskId);
     }
 
     @PostMapping("/{taskId}/merge")
@@ -44,13 +44,13 @@ public class TaskController {
     @PostMapping("/{taskId}/threshold")
     @Operation(summary = "Эмуляция создания threshold в MR")
     public void thresholdTask(@PathVariable("taskId") Long taskId) {
-        taskService.notifyThresholdTask(taskId);
+        taskService.notifyReviewerThresholdOnMrRequestMessage(taskId);
     }
 
     @PostMapping("/{taskId}/accept-threshold")
     @Operation(summary = "Подтвердить отправку threshold для девелопера")
     public void acceptThresholdTaskNotify(@PathVariable("taskId") Long taskId) {
-        taskService.confirmThresholdTaskNotify(taskId);
+        taskService.confirmThresholdTaskNotifyToDeveloper(taskId);
     }
 
     @PostMapping("/{taskId}/fix")

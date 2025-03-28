@@ -1,13 +1,14 @@
 package com.notification.service.scheduler;
 
-import com.notification.service.entity.Notification;
+import com.notification.service.handler.NotificationHandler;
+import com.notification.service.model.NotificationType;
 import com.notification.service.service.NotificationService;
 import com.notification.service.telegram.HiveNotificationBot;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -18,71 +19,16 @@ public class NotificationScheduler {
 
     private final NotificationService notificationService;
 
+    private final Map<NotificationType, NotificationHandler> handlers;
+
     @Scheduled(fixedRate = 5000)
     public void scheduleNotifications() {
-        List<Notification> notifications = notificationService.getAllNotifications();
-
-        notifications.forEach(notification -> {
-            switch (notification.getNotificationType()) {
-                case SEND_DEVELOPER_NEW_MR -> {
-                    handleSendDeveloperNewMrNotification(notification);
-                }
-                case SEND_REVIEWER_NEW_MR -> {
-                    handleSendReviewerNewMrNotification(notification);
-                }
-                case SEND_DEVELOPER_MERGED_MR -> {
-                    handleSendDeveloperMergedTakNotification(notification);
-                }
-                case SEND_REVIEWER_THRESHOLD_ACCEPT -> {
-                    handleSendReviewerThresholdAccept(notification);
-                }
-                case SEND_DEVELOPER_THRESHOLD_FIX_ACCEPT -> {
-                    handleSendDeveloperNewFixOnThresholdAccept(notification);
-                }
+        notificationService.getAllNotifications().forEach(notification -> {
+            NotificationHandler handler = handlers.get(notification.getNotificationType());
+            if (handler != null) {
+                handler.handle(notification, hiveNotificationBot, notificationService);
+                notificationService.deleteNotificationById(notification.getId());
             }
         });
-    }
-
-    private void handleSendReviewerThresholdAccept(Notification notification) {
-        hiveNotificationBot.sendReviewerThresholdAccept(
-                String.valueOf(notification.getTask().getReviewer().getTelegramChatId()),
-                notification.getMessage(),
-                notification.getTask().getId()
-        );
-        notificationService.deleteNotificationById(notification.getId());
-    }
-
-    private void handleSendDeveloperMergedTakNotification(Notification notification) {
-        hiveNotificationBot.sendMessage(
-                String.valueOf(notification.getTask().getDeveloper().getTelegramChatId()),
-                notification.getMessage()
-        );
-        notificationService.deleteNotificationById(notification.getId());
-    }
-
-    private void handleSendDeveloperNewMrNotification(Notification notification) {
-        hiveNotificationBot.sendDeveloperNewTaskMessageWithConfirmation(
-                String.valueOf(notification.getTask().getDeveloper().getTelegramChatId()),
-                notification.getMessage(),
-                notification.getTask().getId()
-        );
-        notificationService.deleteNotificationById(notification.getId());
-    }
-
-    private void handleSendReviewerNewMrNotification(Notification notification) {
-        hiveNotificationBot.sendMessage(
-                String.valueOf(notification.getTask().getReviewer().getTelegramChatId()),
-                notification.getMessage()
-        );
-        notificationService.deleteNotificationById(notification.getId());
-    }
-
-    private void handleSendDeveloperNewFixOnThresholdAccept(Notification notification) {
-        hiveNotificationBot.handleSendDeveloperNewFixOnThresholdAccept(
-                String.valueOf(notification.getTask().getDeveloper().getTelegramChatId()),
-                notification.getMessage(),
-                notification.getTask().getId()
-        );
-        notificationService.deleteNotificationById(notification.getId());
     }
 }
