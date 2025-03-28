@@ -21,7 +21,7 @@ public class TaskService {
     public Task createTask(Task task) {
         task.setStatus(TaskStatus.OPEN);
         Task savedTask = taskRepository.save(task);
-        notificationService.notifyDeveloper(task);
+        notificationService.notifyDeveloperMrReviewRequestMessage(task);
         return savedTask;
     }
 
@@ -37,7 +37,7 @@ public class TaskService {
         Task task = getTaskById(taskId);
 
         if (task.getStatus() != TaskStatus.CLOSED) {
-            notificationService.notifyThresholdReviewer(task);
+            notificationService.notifyReviewerThresholdOnMrRequestMessage(task);
         }
     }
 
@@ -53,13 +53,13 @@ public class TaskService {
     public Task mergeTask(Long id) {
         Task taskById = getTaskById(id);
         taskById.setStatus(TaskStatus.CLOSED);
-        notificationService.notifyDeveloperMergedTask(taskById);
+        notificationService.notifyDeveloperMergedMrMessage(taskById);
         return taskRepository.save(taskById);
     }
 
     public void sendNewFixOnThreshold(Long taskId) {
         Task task = getTaskById(taskId);
-        notificationService.sendNewFixOnThreshold(task);
+        notificationService.notifyDeveloperNewFixOnThresholdRequestMessage(task);
     }
 
     public Task getTaskById(Long id) {

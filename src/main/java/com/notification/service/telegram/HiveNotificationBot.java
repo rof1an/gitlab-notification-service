@@ -63,9 +63,9 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
 
     private void handleCallback(CallbackQuery callbackQuery) {
         String data = callbackQuery.getData();
-        String sendDeveloperNewMr = String.valueOf(NotificationType.SEND_DEVELOPER_NEW_MR);
-        String sendReviewerThreshold = String.valueOf(NotificationType.SEND_REVIEWER_THRESHOLD_ACCEPT);
-        String sendDeveloperThresholdNewFix = String.valueOf(NotificationType.SEND_DEVELOPER_THRESHOLD_FIX_ACCEPT);
+        String sendDeveloperNewMr = String.valueOf(NotificationType.SEND_DEVELOPER_NEW_MR_REQUEST_MESSAGE);
+        String sendReviewerThreshold = String.valueOf(NotificationType.SEND_REVIEWER_THRESHOLD_REQUEST_MESSAGE);
+        String sendDeveloperThresholdNewFix = String.valueOf(NotificationType.SEND_DEVELOPER_THRESHOLD_FIX_REQUEST_MESSAGE);
 
         if (data.startsWith(sendDeveloperNewMr)) {
             String[] parts = data.split(":");
@@ -103,7 +103,7 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
     public void sendDeveloperNewTaskMessageWithConfirmation(String chatId, String text, Long taskId) {
         String buttonText = "Уведомить ревьюера";
         InlineKeyboardMarkup markup =
-                createInlineKeyboardMarkup(buttonText, NotificationType.SEND_DEVELOPER_NEW_MR, taskId);
+                createInlineKeyboardMarkup(buttonText, NotificationType.SEND_DEVELOPER_NEW_MR_REQUEST_MESSAGE, taskId);
 
         SendMessage message = new SendMessage(chatId, text);
         message.setReplyMarkup(markup);
@@ -118,7 +118,7 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
     public void sendReviewerThresholdAccept(String chatId, String text, Long taskId) {
         String buttonText = "Уведомить девелопера";
         InlineKeyboardMarkup markup =
-                createInlineKeyboardMarkup(buttonText, NotificationType.SEND_REVIEWER_THRESHOLD_ACCEPT, taskId);
+                createInlineKeyboardMarkup(buttonText, NotificationType.SEND_REVIEWER_THRESHOLD_REQUEST_MESSAGE, taskId);
 
         SendMessage message = new SendMessage(chatId, text);
         message.setReplyMarkup(markup);
@@ -184,7 +184,7 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
     public void handleSendDeveloperNewFixOnThresholdAccept(String chatId, String text, Long taskId) {
         String buttonText = "Уведомить ревьюера";
         InlineKeyboardMarkup markup =
-                createInlineKeyboardMarkup(buttonText, NotificationType.SEND_DEVELOPER_THRESHOLD_FIX_ACCEPT, taskId);
+                createInlineKeyboardMarkup(buttonText, NotificationType.SEND_DEVELOPER_THRESHOLD_FIX_REQUEST_MESSAGE, taskId);
 
         SendMessage message = new SendMessage(chatId, text);
         message.setReplyMarkup(markup);
