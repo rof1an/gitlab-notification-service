@@ -29,7 +29,7 @@ public class TaskService {
         Task task = getTaskById(taskId);
 
         if (task.getStatus() == TaskStatus.OPEN) {
-            notificationService.notifyReviewer(task);
+            notificationService.notifyReviewerNewMrMessage(task);
         }
     }
 

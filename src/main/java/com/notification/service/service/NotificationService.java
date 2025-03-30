@@ -25,11 +25,11 @@ public class NotificationService {
         saveNotification(createNotificationByTask(task, message, NotificationType.SEND_DEVELOPER_NEW_MR_REQUEST_MESSAGE));
     }
 
-    public void notifyReviewer(Task task) {
+    public void notifyReviewerNewMrMessage(Task task) {
         String message = String.format("Новая задача на ревью: %s\nСсылка: %s",
                 task.getTitle(), task.getLinkToMr());
 
-        saveNotification(createNotificationByTask(task, message, NotificationType.SEND_DEVELOPER_NEW_MR_REQUEST_MESSAGE));
+        saveNotification(createNotificationByTask(task, message, NotificationType.SEND_REVIEWER_NEW_MR_MESSAGE));
     }
 
     public void notifyDeveloperMergedMrMessage(Task mergedTask) {
