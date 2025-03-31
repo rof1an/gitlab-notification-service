@@ -160,7 +160,7 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         String developerChatId = String.valueOf(task.getDeveloper().getTelegramChatId());
 
         String messageText = String.format("""
-                        Новый threshold в МР по таске: %s
+                        Новый threshold в МР по задаче: %s
                         Нужны исправления.
                         Ссылка на Merge Request: %s
                         Developer: %s
@@ -201,7 +201,7 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         String developerChatId = String.valueOf(task.getReviewer().getTelegramChatId());
 
         String messageText = String.format("""
-                        Новое изменение по threshold в МР по таске: %s
+                        Новое изменение по threshold в МР по задаче: %s
                         Ссылка на Merge Request: %s
                         Developer: %s
                         Reviewer: %s

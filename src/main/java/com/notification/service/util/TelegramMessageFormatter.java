@@ -10,8 +10,8 @@ public class TelegramMessageFormatter {
     public String formatDeveloperMrReviewRequestMessage(Task task) {
         return String.format("""
                         Новый МР/Новые изменения в МР: %s
-                        Ссылка: %s"
-                        "Подтвердите отправку ревьюеру""",
+                        Ссылка: %s
+                        Подтвердите отправку ревьюеру""",
                 task.getTitle(), task.getLinkToMr());
     }
 
