@@ -24,19 +24,19 @@ public class NotificationScheduler {
 
         notifications.forEach(notification -> {
             switch (notification.getNotificationType()) {
-                case SEND_DEVELOPER_NEW_MR -> {
+                case SEND_DEVELOPER_NEW_MR_REQUEST_MESSAGE -> {
                     handleSendDeveloperNewMrNotification(notification);
                 }
-                case SEND_REVIEWER_NEW_MR -> {
+                case SEND_REVIEWER_NEW_MR_MESSAGE -> {
                     handleSendReviewerNewMrNotification(notification);
                 }
-                case SEND_DEVELOPER_MERGED_MR -> {
+                case SEND_DEVELOPER_MERGED_MR_MESSAGE -> {
                     handleSendDeveloperMergedTakNotification(notification);
                 }
-                case SEND_REVIEWER_THRESHOLD_ACCEPT -> {
+                case SEND_REVIEWER_THRESHOLD_REQUEST_MESSAGE -> {
                     handleSendReviewerThresholdAccept(notification);
                 }
-                case SEND_DEVELOPER_THRESHOLD_FIX_ACCEPT -> {
+                case SEND_DEVELOPER_THRESHOLD_FIX_REQUEST_MESSAGE -> {
                     handleSendDeveloperNewFixOnThresholdAccept(notification);
                 }
             }
