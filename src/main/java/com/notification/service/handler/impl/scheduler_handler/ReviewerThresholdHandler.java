@@ -1,4 +1,4 @@
-package com.notification.service.handler.impl;
+package com.notification.service.handler.impl.scheduler_handler;
 
 import com.notification.service.entity.Notification;
 import com.notification.service.handler.NotificationHandler;
@@ -9,14 +9,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class DeveloperThresholdFixHandler implements NotificationHandler {
+public class ReviewerThresholdHandler implements NotificationHandler {
 
     private final HiveNotificationBot notificationBot;
 
     @Override
     public void handle(Notification notification) {
-        notificationBot.handleSendDeveloperNewFixOnThresholdAccept(
-                String.valueOf(notification.getTask().getDeveloper().getTelegramChatId()),
+        notificationBot.handleSendReviewerThresholdAccept(
+                String.valueOf(notification.getTask().getReviewer().getTelegramChatId()),
                 notification.getMessage(),
                 notification.getTask().getId()
         );
@@ -24,6 +24,6 @@ public class DeveloperThresholdFixHandler implements NotificationHandler {
 
     @Override
     public NotificationType getNotificationType() {
-        return NotificationType.SEND_DEVELOPER_THRESHOLD_FIX_REQUEST_MESSAGE;
+        return NotificationType.SEND_REVIEWER_THRESHOLD_REQUEST_MESSAGE;
     }
 }

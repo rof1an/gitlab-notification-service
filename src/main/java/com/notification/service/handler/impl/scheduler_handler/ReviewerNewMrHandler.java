@@ -1,4 +1,4 @@
-package com.notification.service.handler.impl;
+package com.notification.service.handler.impl.scheduler_handler;
 
 import com.notification.service.entity.Notification;
 import com.notification.service.handler.NotificationHandler;
@@ -15,7 +15,7 @@ public class ReviewerNewMrHandler implements NotificationHandler {
 
     @Override
     public void handle(Notification notification) {
-        notificationBot.sendMessage(
+        notificationBot.executeMessage(
                 String.valueOf(notification.getTask().getReviewer().getTelegramChatId()),
                 notification.getMessage()
         );
