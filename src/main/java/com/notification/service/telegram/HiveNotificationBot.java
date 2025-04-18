@@ -2,9 +2,9 @@ package com.notification.service.telegram;
 
 
 import com.notification.service.entity.User;
-import com.notification.service.handler.CallbackNotificationHandler;
 import com.notification.service.model.NotificationType;
 import com.notification.service.service.UserService;
+import com.notification.service.telegram.handler.CallbackNotificationHandler;
 import com.notification.service.util.TelegramKeyboardFactory;
 import com.notification.service.util.TelegramMessageFormatter;
 import lombok.extern.slf4j.Slf4j;
@@ -29,26 +29,25 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
     @Value("${bot.name}")
     private String botUsername;
 
-    private final UserService userService;
-
     private final TelegramMessageFormatter telegramMessageFormatter;
 
     private final TelegramKeyboardFactory keyboardFactory;
+
+    private final UserService userService;
 
     private final List<CallbackNotificationHandler> callbackHandlers;
 
     private final String START = "/start";
 
     public HiveNotificationBot(@Value("${bot.token}") String botToken,
-                               UserService userService,
                                TelegramMessageFormatter telegramMessageFormatter,
                                TelegramKeyboardFactory keyboardFactory,
-                               List<CallbackNotificationHandler> callbackHandlers) {
+                               List<CallbackNotificationHandler> callbackHandlers, UserService userService) {
         super(botToken);
-        this.userService = userService;
         this.telegramMessageFormatter = telegramMessageFormatter;
         this.keyboardFactory = keyboardFactory;
         this.callbackHandlers = callbackHandlers;
+        this.userService = userService;
     }
 
     @Override

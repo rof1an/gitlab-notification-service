@@ -35,8 +35,15 @@ public class TelegramMessageFormatter {
         return "Отслежен новый threshold, подтвердите отправку девелоперу";
     }
 
-    public String developerNewFixOnThresholdRequestMessage() {
-        return "Отслежено новое изменение на threshold, подтвердите отправку ревьюеру";
+    public String developerNewFixOnThresholdRequestMessage(Task task) {
+        return String.format("""
+                        Отслежено новое изменение на threshold
+                        Название МР: %s
+                        Ссылка: %s
+                        Reviewer: %s
+                        Подтвердите отправку ревьюеру""",
+                task.getTitle(), task.getLinkToMr(), task.getReviewer().getUsername()
+        );
     }
 
     public String formatReviewerNotificationMessage(Task task) {
@@ -55,7 +62,7 @@ public class TelegramMessageFormatter {
 
     public String formatDeveloperNewThresholdMessage(Task task) {
         return String.format("""
-                        Новый threshold в МР по задаче: %s
+                        Новый threshold в МР: %s
                         Нужны исправления.
                         Ссылка на Merge Request: %s
                         Developer: %s
@@ -70,7 +77,7 @@ public class TelegramMessageFormatter {
 
     public String formatReviewerNewFixOnThreshold(Task task) {
         return String.format("""
-                        Новое изменение по threshold в МР по задаче: %s
+                        Новое изменение по threshold в МР: %s
                         Ссылка на Merge Request: %s
                         Developer: %s
                         Reviewer: %s
@@ -86,7 +93,7 @@ public class TelegramMessageFormatter {
         return String.format("""
                         Добро пожаловать в бот, %s.
                         Здесь можно увидеть список МР.
-                                        
+                                       
                         Команды для использования:
                         /start - запуск бота
                         """,

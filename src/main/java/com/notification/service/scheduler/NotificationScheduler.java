@@ -1,7 +1,7 @@
 package com.notification.service.scheduler;
 
-import com.notification.service.handler.NotificationHandler;
 import com.notification.service.service.NotificationService;
+import com.notification.service.telegram.handler.NotificationHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;

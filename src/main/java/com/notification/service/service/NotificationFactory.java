@@ -27,7 +27,7 @@ public class NotificationFactory {
             case SEND_REVIEWER_NEW_MR_MESSAGE -> messageFormatter.formatReviewerNewMrMessage(task);
             case SEND_DEVELOPER_MERGED_MR_MESSAGE -> messageFormatter.formatDeveloperMergedMrMessage(task);
             case SEND_REVIEWER_THRESHOLD_REQUEST_MESSAGE -> messageFormatter.reviewerThresholdOnMrRequestMessage();
-            case SEND_DEVELOPER_THRESHOLD_FIX_REQUEST_MESSAGE -> messageFormatter.developerNewFixOnThresholdRequestMessage();
+            case SEND_DEVELOPER_THRESHOLD_FIX_REQUEST_MESSAGE -> messageFormatter.developerNewFixOnThresholdRequestMessage(task);
         };
     }
 }
