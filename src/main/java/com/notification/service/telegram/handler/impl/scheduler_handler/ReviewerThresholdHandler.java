@@ -1,23 +1,22 @@
-package com.notification.service.handler.impl.scheduler_handler;
-
+package com.notification.service.telegram.handler.impl.scheduler_handler;
 
 import com.notification.service.entity.Notification;
-import com.notification.service.handler.NotificationHandler;
 import com.notification.service.model.NotificationType;
 import com.notification.service.telegram.HiveNotificationBot;
+import com.notification.service.telegram.handler.NotificationHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class DeveloperNewMrHandler implements NotificationHandler {
+public class ReviewerThresholdHandler implements NotificationHandler {
 
     private final HiveNotificationBot notificationBot;
 
     @Override
     public void handle(Notification notification) {
-        notificationBot.handleSendDeveloperNewTaskMessageWithConfirmation(
-                String.valueOf(notification.getTask().getDeveloper().getTelegramChatId()),
+        notificationBot.handleSendReviewerThresholdAccept(
+                String.valueOf(notification.getTask().getReviewer().getTelegramChatId()),
                 notification.getMessage(),
                 notification.getTask().getId()
         );
@@ -25,6 +24,6 @@ public class DeveloperNewMrHandler implements NotificationHandler {
 
     @Override
     public NotificationType getNotificationType() {
-        return NotificationType.SEND_DEVELOPER_NEW_MR_REQUEST_MESSAGE;
+        return NotificationType.SEND_REVIEWER_THRESHOLD_REQUEST_MESSAGE;
     }
 }

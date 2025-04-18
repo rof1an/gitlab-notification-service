@@ -1,4 +1,4 @@
-package com.notification.service.handler;
+package com.notification.service.telegram.handler;
 
 import com.notification.service.entity.Notification;
 import com.notification.service.model.NotificationType;

@@ -1,4 +1,4 @@
-package com.notification.service.config;
+package com.notification.service.telegram.config;
 
 import com.notification.service.telegram.HiveNotificationBot;
 import org.springframework.context.annotation.Bean;

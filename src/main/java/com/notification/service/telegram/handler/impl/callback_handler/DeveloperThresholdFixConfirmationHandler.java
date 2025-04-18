@@ -1,11 +1,11 @@
-package com.notification.service.handler.impl.callback_handler;
+package com.notification.service.telegram.handler.impl.callback_handler;
 
 import com.notification.service.entity.Task;
-import com.notification.service.handler.CallbackNotificationHandler;
 import com.notification.service.model.NotificationType;
 import com.notification.service.model.TaskStatus;
 import com.notification.service.service.TaskService;
 import com.notification.service.telegram.HiveNotificationBot;
+import com.notification.service.telegram.handler.CallbackNotificationHandler;
 import com.notification.service.util.TelegramMessageFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

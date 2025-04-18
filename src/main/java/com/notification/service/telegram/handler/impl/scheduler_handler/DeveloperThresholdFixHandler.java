@@ -1,9 +1,9 @@
-package com.notification.service.handler.impl.scheduler_handler;
+package com.notification.service.telegram.handler.impl.scheduler_handler;
 
 import com.notification.service.entity.Notification;
-import com.notification.service.handler.NotificationHandler;
 import com.notification.service.model.NotificationType;
 import com.notification.service.telegram.HiveNotificationBot;
+import com.notification.service.telegram.handler.NotificationHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

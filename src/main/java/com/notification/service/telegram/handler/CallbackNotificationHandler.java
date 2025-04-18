@@ -1,4 +1,4 @@
-package com.notification.service.handler;
+package com.notification.service.telegram.handler;
 
 import com.notification.service.model.NotificationType;
 import com.notification.service.telegram.HiveNotificationBot;
