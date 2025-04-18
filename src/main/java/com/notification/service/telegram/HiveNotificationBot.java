@@ -40,9 +40,10 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
     private final String START = "/start";
 
     public HiveNotificationBot(@Value("${bot.token}") String botToken,
+                               UserService userService,
                                TelegramMessageFormatter telegramMessageFormatter,
                                TelegramKeyboardFactory keyboardFactory,
-                               List<CallbackNotificationHandler> callbackHandlers, UserService userService) {
+                               List<CallbackNotificationHandler> callbackHandlers) {
         super(botToken);
         this.telegramMessageFormatter = telegramMessageFormatter;
         this.keyboardFactory = keyboardFactory;

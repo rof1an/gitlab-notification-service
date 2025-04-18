@@ -100,8 +100,7 @@ public class TelegramMessageFormatter {
                 update.getMessage().getChat().getFirstName()
         );
     }
-
-    public String defaultCommand() {
+public String defaultCommand() {
         return """
                 Команды для использования:
                 /start - запуск бота

@@ -1,6 +1,7 @@
 package com.notification.service.service;
 
 import com.notification.service.entity.Task;
+import com.notification.service.model.NotificationType;
 import com.notification.service.model.TaskStatus;
 import com.notification.service.model.UserRole;
 import com.notification.service.repository.TaskRepository;
@@ -21,7 +22,7 @@ public class TaskService {
     public Task createTask(Task task) {
         task.setStatus(TaskStatus.OPEN);
         Task savedTask = taskRepository.save(task);
-        notificationService.notifyDeveloperMrReviewRequestMessage(task);
+        notificationService.notify(task, NotificationType.SEND_DEVELOPER_NEW_MR_REQUEST_MESSAGE);
         return savedTask;
     }
 
@@ -29,7 +30,7 @@ public class TaskService {
         Task task = getTaskById(taskId);
 
         if (task.getStatus() == TaskStatus.OPEN) {
-            notificationService.notifyReviewerNewMrMessage(task);
+            notificationService.notify(task, NotificationType.SEND_REVIEWER_NEW_MR_MESSAGE);
         }
     }
 
@@ -37,7 +38,7 @@ public class TaskService {
         Task task = getTaskById(taskId);
 
         if (task.getStatus() != TaskStatus.CLOSED) {
-            notificationService.notifyReviewerThresholdOnMrRequestMessage(task);
+            notificationService.notify(task, NotificationType.SEND_REVIEWER_THRESHOLD_REQUEST_MESSAGE);
         }
     }
 
@@ -51,15 +52,16 @@ public class TaskService {
     }
 
     public Task mergeTask(Long id) {
-        Task taskById = getTaskById(id);
-        taskById.setStatus(TaskStatus.CLOSED);
-        notificationService.notifyDeveloperMergedMrMessage(taskById);
-        return taskRepository.save(taskById);
+        Task task = getTaskById(id);
+        task.setStatus(TaskStatus.CLOSED);
+
+        notificationService.notify(task, NotificationType.SEND_DEVELOPER_MERGED_MR_MESSAGE);
+        return taskRepository.save(task);
     }
 
     public void sendNewFixOnThreshold(Long taskId) {
         Task task = getTaskById(taskId);
-        notificationService.notifyDeveloperNewFixOnThresholdRequestMessage(task);
+        notificationService.notify(task, NotificationType.SEND_DEVELOPER_THRESHOLD_FIX_REQUEST_MESSAGE);
     }
 
     public Task getTaskById(Long id) {

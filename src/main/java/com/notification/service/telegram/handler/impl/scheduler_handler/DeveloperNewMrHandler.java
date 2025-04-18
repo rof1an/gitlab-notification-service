@@ -1,6 +1,5 @@
 package com.notification.service.telegram.handler.impl.scheduler_handler;
 
-
 import com.notification.service.entity.Notification;
 import com.notification.service.model.NotificationType;
 import com.notification.service.telegram.HiveNotificationBot;
