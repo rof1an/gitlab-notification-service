@@ -31,8 +31,14 @@ public class TelegramMessageFormatter {
                 task.getTitle(), task.getLinkToMr(), task.getReviewer().getUsername());
     }
 
-    public String reviewerThresholdOnMrRequestMessage() {
-        return "Отслежен новый threshold, подтвердите отправку девелоперу";
+    public String reviewerThresholdOnMrRequestMessage(Task task) {
+        return String.format("""
+                        Отслежен новый threshold. 
+                        МР: %s
+                        Developer: %s
+                        Ссылка: %s
+                        Подтвердите отправку девелоперу""",
+                task.getTitle(), task.getDeveloper().getUsername(), task.getLinkToMr());
     }
 
     public String developerNewFixOnThresholdRequestMessage(Task task) {
@@ -100,7 +106,8 @@ public class TelegramMessageFormatter {
                 update.getMessage().getChat().getFirstName()
         );
     }
-public String defaultCommand() {
+
+    public String defaultCommand() {
         return """
                 Команды для использования:
                 /start - запуск бота
