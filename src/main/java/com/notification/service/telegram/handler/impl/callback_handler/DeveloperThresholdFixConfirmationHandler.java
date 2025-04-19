@@ -4,7 +4,7 @@ import com.notification.service.entity.Task;
 import com.notification.service.model.NotificationType;
 import com.notification.service.model.TaskStatus;
 import com.notification.service.service.TaskService;
-import com.notification.service.telegram.HiveNotificationBot;
+import com.notification.service.telegram.TelegramNotificationBot;
 import com.notification.service.telegram.handler.CallbackNotificationHandler;
 import com.notification.service.util.TelegramMessageFormatter;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class DeveloperThresholdFixConfirmationHandler implements CallbackNotific
     private final TelegramMessageFormatter telegramMessageFormatter;
 
     @Override
-    public void handle(HiveNotificationBot notificationBot, CallbackQuery callbackQuery, Long taskId) {
+    public void handle(TelegramNotificationBot notificationBot, CallbackQuery callbackQuery, Long taskId) {
         Task task = taskService.getTaskById(taskId);
         String reviewerChatId = String.valueOf(task.getReviewer().getTelegramChatId());
         String messageText = telegramMessageFormatter.formatReviewerNewFixOnThreshold(task);

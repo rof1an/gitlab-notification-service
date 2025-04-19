@@ -4,11 +4,11 @@ package com.notification.service.telegram;
 import com.notification.service.entity.User;
 import com.notification.service.model.NotificationType;
 import com.notification.service.service.UserService;
+import com.notification.service.telegram.config.TelegramBotProperties;
 import com.notification.service.telegram.handler.CallbackNotificationHandler;
 import com.notification.service.util.TelegramKeyboardFactory;
 import com.notification.service.util.TelegramMessageFormatter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jmx.export.notification.UnableToSendNotificationException;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -24,31 +24,26 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class HiveNotificationBot extends TelegramLongPollingBot {
+public class TelegramNotificationBot extends TelegramLongPollingBot {
 
-    @Value("${bot.name}")
-    private String botUsername;
-
-    private final TelegramMessageFormatter telegramMessageFormatter;
-
-    private final TelegramKeyboardFactory keyboardFactory;
-
-    private final UserService userService;
-
+    private final TelegramBotProperties telegramBotProperties;
     private final List<CallbackNotificationHandler> callbackHandlers;
-
+    private final TelegramMessageFormatter telegramMessageFormatter;
+    private final TelegramKeyboardFactory keyboardFactory;
+    private final UserService userService;
     private final String START = "/start";
 
-    public HiveNotificationBot(@Value("${bot.token}") String botToken,
-                               UserService userService,
-                               TelegramMessageFormatter telegramMessageFormatter,
-                               TelegramKeyboardFactory keyboardFactory,
-                               List<CallbackNotificationHandler> callbackHandlers) {
-        super(botToken);
+    public TelegramNotificationBot(TelegramBotProperties telegramBotProperties,
+                                   UserService userService,
+                                   TelegramMessageFormatter telegramMessageFormatter,
+                                   TelegramKeyboardFactory keyboardFactory,
+                                   List<CallbackNotificationHandler> callbackHandlers) {
+        super(telegramBotProperties.getToken());
+        this.telegramBotProperties = telegramBotProperties;
+        this.userService = userService;
         this.telegramMessageFormatter = telegramMessageFormatter;
         this.keyboardFactory = keyboardFactory;
         this.callbackHandlers = callbackHandlers;
-        this.userService = userService;
     }
 
     @Override
@@ -119,6 +114,8 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         }
     }
 
+    // то, что до ":" - тип из NotificationType
+    // то, что после ":" - айди Task
     private String[] parseCallbackDataParts(String callbackData) {
         String[] dataParts = callbackData.split(":");
         if (dataParts.length < 2) {
@@ -155,6 +152,6 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return botUsername;
+        return telegramBotProperties.getName();
     }
 }
