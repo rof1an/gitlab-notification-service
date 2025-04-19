@@ -1,6 +1,6 @@
 package com.notification.service.telegram.config;
 
-import com.notification.service.telegram.HiveNotificationBot;
+import com.notification.service.telegram.TelegramNotificationBot;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -8,12 +8,12 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 @Configuration
-public class HiveNotificationBotConfiguration {
+public class TelegramBotConfiguration {
 
     @Bean
-    public TelegramBotsApi telegramBotsApi(HiveNotificationBot hiveNotificationBot) throws TelegramApiException {
+    public TelegramBotsApi telegramBotsApi(TelegramNotificationBot telegramNotificationBot) throws TelegramApiException {
         TelegramBotsApi api = new TelegramBotsApi(DefaultBotSession.class);
-        api.registerBot(hiveNotificationBot);
+        api.registerBot(telegramNotificationBot);
         return api;
     }
 }
