@@ -19,3 +19,5 @@ server:
 bot:
   token: ${BOT_TOKEN}
   name: hive_notification_bot
+  whitelist:
+    ids: ${WHITELIST_IDS}
