@@ -15,7 +15,7 @@ public class DeveloperNewMrHandler implements NotificationHandler {
 
     @Override
     public void handle(Notification notification) {
-        notificationBot.handleSendDeveloperNewTaskMessageWithConfirmation(
+        notificationBot.handleSendDeveloperNewTaskMessageAccept(
                 String.valueOf(notification.getTask().getDeveloper().getTelegramChatId()),
                 notification.getMessage(),
                 notification.getTask().getId()

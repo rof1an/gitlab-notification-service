@@ -92,7 +92,7 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         answerCallback(callbackQuery);
     }
 
-    public void handleSendDeveloperNewTaskMessageWithConfirmation(String chatId, String text, Long taskId) {
+    public void handleSendDeveloperNewTaskMessageAccept(String chatId, String text, Long taskId) {
         sendInteractiveMessage(
                 chatId,
                 text,
@@ -108,7 +108,7 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
                 text,
                 taskId,
                 NotificationType.SEND_REVIEWER_THRESHOLD_REQUEST_MESSAGE,
-                "Уведомить ревьюера"
+                "Уведомить девелопера"
         );
     }
 
@@ -117,7 +117,7 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
                 chatId,
                 text,
                 taskId,
-                NotificationType.SEND_DEVELOPER_NEW_MR_REQUEST_MESSAGE,
+                NotificationType.SEND_DEVELOPER_THRESHOLD_FIX_REQUEST_MESSAGE,
                 "Уведомить ревьюера"
         );
     }
