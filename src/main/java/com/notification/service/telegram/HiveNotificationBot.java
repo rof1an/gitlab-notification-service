@@ -72,12 +72,7 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
     }
 
     private void handleCallback(CallbackQuery callbackQuery) {
-        String[] dataParts = callbackQuery.getData().split(":");
-        if (dataParts.length < 2) {
-            log.warn("Invalid callback data: {}", callbackQuery.getData());
-            return;
-        }
-
+        String[] dataParts = parseCallbackDataParts(callbackQuery.getData());
         NotificationType incomingType = NotificationType.valueOf(dataParts[0]);
         Long incomingTaskId = Long.parseLong(dataParts[1]);
 
@@ -92,37 +87,7 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         answerCallback(callbackQuery);
     }
 
-    public void handleSendDeveloperNewTaskMessageAccept(String chatId, String text, Long taskId) {
-        sendInteractiveMessage(
-                chatId,
-                text,
-                taskId,
-                NotificationType.SEND_DEVELOPER_NEW_MR_REQUEST_MESSAGE,
-                "Уведомить ревьюера"
-        );
-    }
-
-    public void handleSendReviewerThresholdAccept(String chatId, String text, Long taskId) {
-        sendInteractiveMessage(
-                chatId,
-                text,
-                taskId,
-                NotificationType.SEND_REVIEWER_THRESHOLD_REQUEST_MESSAGE,
-                "Уведомить девелопера"
-        );
-    }
-
-    public void handleSendDeveloperNewFixOnThresholdAccept(String chatId, String text, Long taskId) {
-        sendInteractiveMessage(
-                chatId,
-                text,
-                taskId,
-                NotificationType.SEND_DEVELOPER_THRESHOLD_FIX_REQUEST_MESSAGE,
-                "Уведомить ревьюера"
-        );
-    }
-
-    private void sendInteractiveMessage(String chatId, String text, Long taskId, NotificationType type, String buttonText) {
+    public void handleInteractiveCallback(String chatId, String text, Long taskId, NotificationType type, String buttonText) {
         InlineKeyboardMarkup markup = keyboardFactory.createSingleButtonKeyboard(buttonText, type, taskId);
         SendMessage message = new SendMessage(chatId, text);
         message.setReplyMarkup(markup);
@@ -152,6 +117,15 @@ public class HiveNotificationBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             log.error("Failed to answer callback", e);
         }
+    }
+
+    private String[] parseCallbackDataParts(String callbackData) {
+        String[] dataParts = callbackData.split(":");
+        if (dataParts.length < 2) {
+            log.warn("Invalid callback data: {}", callbackData);
+            throw new IllegalArgumentException("Callback data must contain at least type and taskId");
+        }
+        return dataParts;
     }
 
     private void defaultCommand(String chatId) {

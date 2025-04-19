@@ -15,10 +15,12 @@ public class ReviewerThresholdHandler implements NotificationHandler {
 
     @Override
     public void handle(Notification notification) {
-        notificationBot.handleSendReviewerThresholdAccept(
+        notificationBot.handleInteractiveCallback(
                 String.valueOf(notification.getTask().getReviewer().getTelegramChatId()),
                 notification.getMessage(),
-                notification.getTask().getId()
+                notification.getTask().getId(),
+                getNotificationType(),
+                "Уведомить девелопера"
         );
     }
 

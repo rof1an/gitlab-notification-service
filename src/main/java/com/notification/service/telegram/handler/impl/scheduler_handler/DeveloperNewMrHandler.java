@@ -15,10 +15,12 @@ public class DeveloperNewMrHandler implements NotificationHandler {
 
     @Override
     public void handle(Notification notification) {
-        notificationBot.handleSendDeveloperNewTaskMessageAccept(
+        notificationBot.handleInteractiveCallback(
                 String.valueOf(notification.getTask().getDeveloper().getTelegramChatId()),
                 notification.getMessage(),
-                notification.getTask().getId()
+                notification.getTask().getId(),
+                getNotificationType(),
+                "Уведомить ревьюера"
         );
     }
 
