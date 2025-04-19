@@ -15,10 +15,12 @@ public class DeveloperThresholdFixHandler implements NotificationHandler {
 
     @Override
     public void handle(Notification notification) {
-        notificationBot.handleSendDeveloperNewFixOnThresholdAccept(
+        notificationBot.handleInteractiveCallback(
                 String.valueOf(notification.getTask().getDeveloper().getTelegramChatId()),
                 notification.getMessage(),
-                notification.getTask().getId()
+                notification.getTask().getId(),
+                getNotificationType(),
+                "Уведомить ревьюера"
         );
     }
 
