@@ -1,6 +1,7 @@
 package com.notification.service.service;
 
 import com.notification.service.entity.User;
+import com.notification.service.model.UserRole;
 import com.notification.service.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,16 @@ public class UserService {
 
     public List<User> findAllUsers() {
         return userRepository.findAll();
+    }
+
+    public List<User> findAllByReviewerRole() {
+        return userRepository.findByRole(UserRole.REVIEWER)
+                .orElseThrow(() -> new EntityNotFoundException("User with role " + UserRole.REVIEWER + " not found"));
+    }
+
+    public List<User> findAllByDeveloperRole() {
+        return userRepository.findByRole(UserRole.DEVELOPER)
+                .orElseThrow(() -> new EntityNotFoundException("User with role " + UserRole.DEVELOPER + " not found"));
     }
 
     public User findUserByTelegramUsername(String username) {

@@ -1,0 +1,45 @@
+package com.notification.service.telegram_interactive;
+
+import com.notification.service.dto.TaskDto;
+import com.notification.service.entity.User;
+import com.notification.service.mapper.UserMapper;
+import com.notification.service.service.UserService;
+import com.notification.service.telegram_interactive.model.MrModel;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+@Service
+@RequiredArgsConstructor
+public class WebhookService {
+
+    @Value("${api.base-url}")
+    private String apiBaseUrl;
+
+    private final UserService userService;
+    private final RestTemplate restTemplate;
+    private final UserMapper userMapper;
+
+    public TaskDto createMergeRequest(MrModel data) {
+        User reviewer = userService.findById(data.getReviewerId());
+        User developer = userService.findById(data.getDeveloperId());
+
+        TaskDto taskDto = TaskDto.builder()
+                .title(data.getTitle())
+                .linkToMr(data.getLinkToMr())
+                .reviewer(userMapper.toDto(reviewer))
+                .developer(userMapper.toDto(developer))
+                .build();
+
+        ResponseEntity<TaskDto> response = restTemplate.postForEntity(
+                apiBaseUrl,
+                new HttpEntity<>(taskDto),
+                TaskDto.class
+        );
+
+        return response.getBody();
+    }
+}

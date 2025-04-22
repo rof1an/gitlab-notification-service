@@ -1,0 +1,54 @@
+package com.notification.service.telegram_interactive;
+
+import com.notification.service.model.SessionType;
+import com.notification.service.telegram.TelegramNotificationBot;
+import com.notification.service.telegram_interactive.handler.InteractiveHandler;
+import com.notification.service.util.TelegramKeyboardFactory;
+import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Component
+public class TelegramInteractiveManager {
+
+    private final Map<SessionType, InteractiveHandler> handlersMap;
+    private final TelegramKeyboardFactory telegramKeyboardFactory;
+
+    public TelegramInteractiveManager(List<InteractiveHandler> handlers, TelegramKeyboardFactory telegramKeyboardFactory) {
+        this.telegramKeyboardFactory = telegramKeyboardFactory;
+        this.handlersMap = handlers.stream()
+                .collect(Collectors.toMap(InteractiveHandler::getSessionType, handler -> handler));
+    }
+
+    public void showMenu(TelegramNotificationBot bot, String chatId) {
+        SendMessage message = SendMessage.builder()
+                .chatId(chatId)
+                .text("Выберите действие:")
+                .replyMarkup(telegramKeyboardFactory.createMainMenuKeyboard())
+                .build();
+
+        bot.executeMessage(message);
+    }
+
+    public void handleAction(SessionType sessionType, TelegramNotificationBot bot, String chatId) {
+        InteractiveHandler handler = handlersMap.get(sessionType);
+        if (handler != null) {
+            handler.startSession(bot, chatId);
+        }
+    }
+
+    public boolean isSessionInProgress(String chatId) {
+        return handlersMap.values().stream()
+                .anyMatch(handler -> handler.isSessionInProgress(chatId));
+    }
+
+    public void processCallback(TelegramNotificationBot bot, String chatId, String callbackData) {
+        handlersMap.values().stream()
+                .filter(handler -> handler.isSessionInProgress(chatId))
+                .findFirst()
+                .ifPresent(handler -> handler.processCallback(bot, chatId, callbackData));
+    }
+}

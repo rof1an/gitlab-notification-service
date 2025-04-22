@@ -3,9 +3,11 @@ package com.notification.service.telegram;
 
 import com.notification.service.entity.User;
 import com.notification.service.model.NotificationType;
+import com.notification.service.model.SessionType;
 import com.notification.service.service.UserService;
 import com.notification.service.telegram.config.TelegramBotProperties;
 import com.notification.service.telegram.handler.CallbackNotificationHandler;
+import com.notification.service.telegram_interactive.TelegramInteractiveManager;
 import com.notification.service.util.TelegramKeyboardFactory;
 import com.notification.service.util.TelegramMessageFormatter;
 import lombok.extern.slf4j.Slf4j;
@@ -31,19 +33,25 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
     private final TelegramMessageFormatter telegramMessageFormatter;
     private final TelegramKeyboardFactory keyboardFactory;
     private final UserService userService;
+    private final TelegramInteractiveManager interactiveManager;
+
     private final String START = "/start";
+    private final String MENU = "/menu";
+    private final String CREATE_MR = "Создать МР";
 
     public TelegramNotificationBot(TelegramBotProperties telegramBotProperties,
                                    UserService userService,
                                    TelegramMessageFormatter telegramMessageFormatter,
                                    TelegramKeyboardFactory keyboardFactory,
-                                   List<CallbackNotificationHandler> callbackHandlers) {
+                                   List<CallbackNotificationHandler> callbackHandlers,
+                                   TelegramInteractiveManager interactiveManager) {
         super(telegramBotProperties.getToken());
         this.telegramBotProperties = telegramBotProperties;
         this.userService = userService;
         this.telegramMessageFormatter = telegramMessageFormatter;
         this.keyboardFactory = keyboardFactory;
         this.callbackHandlers = callbackHandlers;
+        this.interactiveManager = interactiveManager;
     }
 
     @Override
@@ -53,20 +61,41 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
         }
 
         if (update.hasMessage() && update.getMessage().hasText()) {
-            String message = update.getMessage().getText();
+            String callbackData = update.getMessage().getText();
+            String chatId = update.getMessage().getChatId().toString();
 
-            switch (message) {
+            if (interactiveManager.isSessionInProgress(chatId)) {
+                interactiveManager.processCallback(this, chatId, callbackData);
+                return;
+            }
+
+            switch (callbackData) {
                 case START -> {
                     startCommand(update);
                 }
+                case MENU -> {
+                    interactiveManager.showMenu(this, chatId);
+                }
+                case CREATE_MR -> {
+                    interactiveManager.handleAction(SessionType.MR_CREATION, this, chatId);
+                }
                 default -> {
-                    defaultCommand(update.getMessage().getChatId().toString());
+                    defaultCommand(chatId);
                 }
             }
         }
     }
 
     private void handleCallback(CallbackQuery callbackQuery) {
+        String callbackQueryData = callbackQuery.getData();
+        String chatId = callbackQuery.getMessage().getChatId().toString();
+
+        if (interactiveManager.isSessionInProgress(chatId)) {
+            interactiveManager.processCallback(this, chatId, callbackQueryData);
+            answerCallback(callbackQuery);
+            return;
+        }
+
         String[] dataParts = parseCallbackDataParts(callbackQuery.getData());
         NotificationType incomingType = NotificationType.valueOf(dataParts[0]);
         Long incomingTaskId = Long.parseLong(dataParts[1]);
@@ -130,7 +159,7 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
         executeMessage(chatId, formattedText);
     }
 
-    private void executeMessage(BotApiMethod<?> method) {
+    public void executeMessage(BotApiMethod<?> method) {
         try {
             execute(method);
         } catch (TelegramApiException e) {

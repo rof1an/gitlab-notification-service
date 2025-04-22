@@ -19,3 +19,5 @@ server:
 bot:
   token: ${BOT_TOKEN}
   name: ${BOT_NAME}
+api:
+  base-url: http://localhost:8085/api/tasks
