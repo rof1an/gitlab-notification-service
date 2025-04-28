@@ -12,8 +12,9 @@ public class TelegramMessageFormatter {
         return String.format("""
                         Новый МР: %s
                         Ссылка: %s
+                        Reviewer: %s
                         Подтвердите отправку ревьюеру""",
-                task.getTitle(), task.getLinkToMr());
+                task.getTitle(), task.getLinkToMr(), task.getReviewer().getUsername());
     }
 
     public String formatReviewerNewMrMessage(Task task) {
@@ -25,7 +26,7 @@ public class TelegramMessageFormatter {
 
     public String formatDeveloperMergedMrMessage(Task task) {
         return String.format("""
-                        Ваш MR был успешно смержен!: %s
+                        Ваш МР был успешно смержен!: %s
                         Ссылка: %s
                         Reviewer: %s""",
                 task.getTitle(), task.getLinkToMr(), task.getReviewer().getUsername());
@@ -35,10 +36,10 @@ public class TelegramMessageFormatter {
         return String.format("""
                         Отслежен новый threshold. 
                         МР: %s
-                        Developer: %s
                         Ссылка: %s
+                        Developer: %s
                         Подтвердите отправку девелоперу""",
-                task.getTitle(), task.getDeveloper().getUsername(), task.getLinkToMr());
+                task.getTitle(), task.getLinkToMr(), task.getDeveloper().getUsername());
     }
 
     public String developerNewFixOnThresholdRequestMessage(Task task) {
@@ -54,8 +55,8 @@ public class TelegramMessageFormatter {
 
     public String formatReviewerNotificationMessage(Task task) {
         return String.format("""
-                        Новый MR на проверку: %s
-                        Ссылка на Merge Request: %s
+                        Новый МР на проверку: %s
+                        Ссылка на МР: %s
                         Developer: %s
                         Reviewer: %s
                         """,
@@ -70,7 +71,7 @@ public class TelegramMessageFormatter {
         return String.format("""
                         Новый threshold в МР: %s
                         Нужны исправления.
-                        Ссылка на Merge Request: %s
+                        Ссылка на МР: %s
                         Developer: %s
                         Reviewer: %s
                         """,

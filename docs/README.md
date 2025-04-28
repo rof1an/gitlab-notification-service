@@ -1,4 +1,4 @@
-# LearnHive notification service
+# Telegram notification service
 Сервис предназначен для упрощения приёма и передачи задач в проекте путем уведомления разработчика/ревьюера 
 о проверке/поступлении Merge Reqeust'а в телеграм.
 

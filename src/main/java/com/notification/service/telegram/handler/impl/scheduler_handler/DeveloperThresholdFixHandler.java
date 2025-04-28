@@ -2,7 +2,7 @@ package com.notification.service.telegram.handler.impl.scheduler_handler;
 
 import com.notification.service.entity.Notification;
 import com.notification.service.model.NotificationType;
-import com.notification.service.telegram.HiveNotificationBot;
+import com.notification.service.telegram.TelegramNotificationBot;
 import com.notification.service.telegram.handler.NotificationHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -11,14 +11,16 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DeveloperThresholdFixHandler implements NotificationHandler {
 
-    private final HiveNotificationBot notificationBot;
+    private final TelegramNotificationBot notificationBot;
 
     @Override
     public void handle(Notification notification) {
-        notificationBot.handleSendDeveloperNewFixOnThresholdAccept(
+        notificationBot.handleInteractiveCallback(
                 String.valueOf(notification.getTask().getDeveloper().getTelegramChatId()),
                 notification.getMessage(),
-                notification.getTask().getId()
+                notification.getTask().getId(),
+                getNotificationType(),
+                "Уведомить ревьюера"
         );
     }
 

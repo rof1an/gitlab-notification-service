@@ -1,4 +1,4 @@
-name: hive-notification
+name: telegram-bot-notification
 version: '3.8'
 
 services:
@@ -9,15 +9,15 @@ services:
     ports:
       - "9095:8085"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://hive-service-data:${DB_PORT}/${DB_NAME}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://telegram-bot-data:${DB_PORT}/${DB_NAME}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
     depends_on:
-      - hive-service-data
+      - telegram-bot-data
     env_file:
       - docker.compose.env
 
-  hive-service-data:
+  telegram-bot-data:
     image: postgres:latest
     ports:
       - "5435:5432"

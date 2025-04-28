@@ -18,6 +18,6 @@ server:
   port: 8085
 bot:
   token: ${BOT_TOKEN}
-  name: hive_notification_bot
+  name: ${BOT_NAME}
   whitelist:
     ids: ${WHITELIST_IDS}
