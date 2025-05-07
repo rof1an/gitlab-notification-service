@@ -26,6 +26,9 @@ import java.util.List;
 @Component
 public class TelegramNotificationBot extends TelegramLongPollingBot {
 
+    @Value("${bot.whitelist.ids}")
+    private List<Long> whitelistIds;
+
     private final TelegramBotProperties telegramBotProperties;
     private final List<CallbackNotificationHandler> callbackHandlers;
     private final TelegramMessageFormatter telegramMessageFormatter;
@@ -48,21 +51,25 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasCallbackQuery()) {
-            handleCallback(update.getCallbackQuery());
-        }
+        if (whitelistIds.contains(update.getMessage().getFrom().getId())) {
+            if (update.hasCallbackQuery()) {
+                handleCallback(update.getCallbackQuery());
+            }
 
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            String message = update.getMessage().getText();
+            if (update.hasMessage() && update.getMessage().hasText()) {
+                String message = update.getMessage().getText();
 
-            switch (message) {
-                case START -> {
-                    startCommand(update);
-                }
-                default -> {
-                    defaultCommand(update.getMessage().getChatId().toString());
+                switch (message) {
+                    case START -> {
+                        startCommand(update);
+                    }
+                    default -> {
+                        defaultCommand(update.getMessage().getChatId().toString());
+                    }
                 }
             }
+        } else {
+            deniedAccessCommand(update);
         }
     }
 
@@ -102,6 +109,13 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
         if (userByTelegramUsername.getTelegramChatId() == 0) {
             userService.updateUserDataByTelegramUsername(telegramUserName, telegramChatId);
         }
+    }
+
+    private void deniedAccessCommand(Update update) {
+        executeMessage(
+                String.valueOf(update.getMessage().getFrom().getId()),
+                "У вас нет доступа к боту."
+        );
     }
 
     private void answerCallback(CallbackQuery callbackQuery) {

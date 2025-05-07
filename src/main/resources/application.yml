@@ -19,3 +19,5 @@ server:
 bot:
   token: ${BOT_TOKEN}
   name: ${BOT_NAME}
+  whitelist:
+    ids: ${WHITELIST_IDS}
