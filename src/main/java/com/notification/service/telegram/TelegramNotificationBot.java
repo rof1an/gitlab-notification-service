@@ -11,6 +11,7 @@ import com.notification.service.telegram_interactive.TelegramInteractiveManager;
 import com.notification.service.util.TelegramKeyboardFactory;
 import com.notification.service.util.TelegramMessageFormatter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jmx.export.notification.UnableToSendNotificationException;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -59,36 +60,48 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (whitelistIds.contains(update.getMessage().getFrom().getId())) {
+        if (whitelistIds.contains(extractUserId(update))) {
             if (update.hasCallbackQuery()) {
                 handleCallback(update.getCallbackQuery());
             }
 
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            String callbackData = update.getMessage().getText();
-            String chatId = update.getMessage().getChatId().toString();
+            if (update.hasMessage() && update.getMessage().hasText()) {
+                String callbackData = update.getMessage().getText();
+                String chatId = update.getMessage().getChatId().toString();
 
-            if (interactiveManager.isSessionInProgress(chatId)) {
-                interactiveManager.processCallback(this, chatId, callbackData);
-                return;
-            }
+                if (interactiveManager.isSessionInProgress(chatId)) {
+                    interactiveManager.processCallback(this, chatId, callbackData);
+                    return;
+                }
 
-            switch (callbackData) {
-                case START -> {
-                    startCommand(update);
+                switch (callbackData) {
+                    case START -> {
+                        startCommand(update);
+                    }
+                    case MENU -> {
+                        interactiveManager.showMenu(this, chatId);
+                    }
+                    case CREATE_MR -> {
+                        interactiveManager.handleAction(SessionType.MR_CREATION, this, chatId);
+                    }
+                    default -> {
+                        defaultCommand(chatId);
+                    }
                 }
-                case MENU -> {
-                    interactiveManager.showMenu(this, chatId);
-                }
-                case CREATE_MR -> {
-                    interactiveManager.handleAction(SessionType.MR_CREATION, this, chatId);
-                }
-                default -> {
-                    defaultCommand(chatId);
             }
-        } else {
+        }
+        else {
             deniedAccessCommand(update);
         }
+    }
+
+    private Long extractUserId(Update update) {
+        if (update.getCallbackQuery() != null) {
+            return update.getCallbackQuery().getFrom().getId();
+        } else if (update.getMessage() != null) {
+            return update.getMessage().getFrom().getId();
+        }
+        throw new IllegalStateException("The ID is missing from the incoming update object");
     }
 
     private void handleCallback(CallbackQuery callbackQuery) {
@@ -116,7 +129,8 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
         answerCallback(callbackQuery);
     }
 
-    public void handleInteractiveCallback(String chatId, String text, Long taskId, NotificationType type, String buttonText) {
+    public void handleInteractiveCallback(String chatId, String text, Long taskId,
+                                          NotificationType type, String buttonText) {
         InlineKeyboardMarkup markup = keyboardFactory.createSingleButtonKeyboard(buttonText, type, taskId);
         SendMessage message = new SendMessage(chatId, text);
         message.setReplyMarkup(markup);
@@ -140,7 +154,7 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
 
     private void deniedAccessCommand(Update update) {
         executeMessage(
-                String.valueOf(update.getMessage().getFrom().getId()),
+                String.valueOf(extractUserId(update)),
                 "У вас нет доступа к боту."
         );
     }
