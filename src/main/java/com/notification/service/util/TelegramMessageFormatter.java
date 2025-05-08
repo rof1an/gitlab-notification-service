@@ -56,7 +56,7 @@ public class TelegramMessageFormatter {
     public String formatReviewerNotificationMessage(Task task) {
         return String.format("""
                         Новый МР на проверку: %s
-                        Ссылка на МР: %s
+                        Ссылка: %s
                         Developer: %s
                         Reviewer: %s
                         """,
@@ -71,7 +71,7 @@ public class TelegramMessageFormatter {
         return String.format("""
                         Новый threshold в МР: %s
                         Нужны исправления.
-                        Ссылка на МР: %s
+                        Ссылка: %s
                         Developer: %s
                         Reviewer: %s
                         """,
@@ -85,7 +85,7 @@ public class TelegramMessageFormatter {
     public String formatReviewerNewFixOnThreshold(Task task) {
         return String.format("""
                         Новое изменение по threshold в МР: %s
-                        Ссылка на Merge Request: %s
+                        Ссылка: %s
                         Developer: %s
                         Reviewer: %s
                         """,
@@ -103,6 +103,7 @@ public class TelegramMessageFormatter {
                                        
                         Команды для использования:
                         /start - запуск бота
+                        /menu - меню взаимодействия
                         """,
                 update.getMessage().getChat().getFirstName()
         );
@@ -112,6 +113,7 @@ public class TelegramMessageFormatter {
         return """
                 Команды для использования:
                 /start - запуск бота
+                /menu - меню взаимодействия
                 """;
     }
 }
