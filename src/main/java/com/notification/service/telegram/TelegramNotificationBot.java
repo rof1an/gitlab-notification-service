@@ -42,6 +42,7 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
     private final String START = "/start";
     private final String MENU = "/menu";
     private final String CREATE_MR = "Создать МР";
+    private final String CREATE_THRESHOLD = "Создать Threshold";
 
     public TelegramNotificationBot(TelegramBotProperties telegramBotProperties,
                                    UserService userService,
@@ -84,13 +85,15 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
                     case CREATE_MR -> {
                         interactiveManager.handleAction(SessionType.MR_CREATION, this, chatId);
                     }
+                    case CREATE_THRESHOLD -> {
+                        interactiveManager.handleAction(SessionType.THRESHOLD_CREATING, this, chatId);
+                    }
                     default -> {
                         defaultCommand(chatId);
                     }
                 }
             }
-        }
-        else {
+        } else {
             deniedAccessCommand(update);
         }
     }

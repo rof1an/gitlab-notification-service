@@ -66,10 +66,17 @@ public class TaskController {
         return mapper.toDtoList(tasks);
     }
 
+    @GetMapping("/by-link")
+    @Operation(summary = "Получить МР по его ссылке")
+    public TaskDto getTaskByLink(@RequestBody String link) {
+        Task taskByLink = taskService.getTaskByLink(link);
+        return mapper.toDto(taskByLink);
+    }
+
     @GetMapping("{id}/user")
     @Operation(summary = "Получить MR для пользователя")
     public TaskDto getTaskByUser(@PathVariable("id") Long userId,
-                                        @RequestParam(value = "status", required = false) UserRole role) {
+                                 @RequestParam(value = "status", required = false) UserRole role) {
         Task task = taskService.getTaskByUser(userId, role);
         return mapper.toDto(task);
     }

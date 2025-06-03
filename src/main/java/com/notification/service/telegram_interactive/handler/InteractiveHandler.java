@@ -9,7 +9,9 @@ public interface InteractiveHandler {
 
     boolean isSessionInProgress(String chatId);
 
-    void processCallback(TelegramNotificationBot bot, String chatId, String callbackData);
+    void processCallback(TelegramNotificationBot bot, String chatId, String input);
+
+    void cancelSession(String chatId);
 
     void startSession(TelegramNotificationBot bot, String chatId);
 }

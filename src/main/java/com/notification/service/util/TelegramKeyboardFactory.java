@@ -28,11 +28,15 @@ public class TelegramKeyboardFactory {
         row1.add("Создать Threshold");
 
         KeyboardRow row2 = new KeyboardRow();
-        row2.add("Создать изменения на Threshold");
+        row2.add("Уведомить об изменении в Threshold");
         row2.add("Смержить МР");
+
+        KeyboardRow row3 = new KeyboardRow();
+        row3.add("Отменить текущее действие");
 
         keyboard.add(row1);
         keyboard.add(row2);
+        keyboard.add(row3);
 
         replyKeyboardMarkup.setKeyboard(keyboard);
         replyKeyboardMarkup.setResizeKeyboard(true);

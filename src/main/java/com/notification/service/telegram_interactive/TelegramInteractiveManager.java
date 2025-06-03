@@ -45,7 +45,22 @@ public class TelegramInteractiveManager {
                 .anyMatch(handler -> handler.isSessionInProgress(chatId));
     }
 
+    public void cancelCurrentSession(String chatId) {
+        handlersMap.values().forEach(handler -> {
+            if (handler.isSessionInProgress(chatId)) {
+                handler.cancelSession(chatId);
+            }
+        });
+    }
+
     public void processCallback(TelegramNotificationBot bot, String chatId, String callbackData) {
+        // TODO вынести строку, есть в другом классе такая же, также с похожими случаями
+        if (callbackData.equalsIgnoreCase("Отменить текущее действие")) {
+            cancelCurrentSession(chatId);
+            bot.executeMessage(chatId, "Действие отменено.");
+            return;
+        }
+
         handlersMap.values().stream()
                 .filter(handler -> handler.isSessionInProgress(chatId))
                 .findFirst()
