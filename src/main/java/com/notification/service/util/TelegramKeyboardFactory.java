@@ -24,15 +24,15 @@ public class TelegramKeyboardFactory {
         List<KeyboardRow> keyboard = new ArrayList<>();
 
         KeyboardRow row1 = new KeyboardRow();
-        row1.add("Создать МР");
-        row1.add("Создать Threshold");
+        row1.add(TelegramButtonLabels.CREATE_MR);
+        row1.add(TelegramButtonLabels.CREATE_THRESHOLD);
 
         KeyboardRow row2 = new KeyboardRow();
-        row2.add("Уведомить об изменении в Threshold");
-        row2.add("Смержить МР");
+        row2.add(TelegramButtonLabels.NOTIFY_THRESHOLD_CHANGE);
+        row2.add(TelegramButtonLabels.MERGE_MR);
 
         KeyboardRow row3 = new KeyboardRow();
-        row3.add("Отменить текущее действие");
+        row3.add(TelegramButtonLabels.CANCEL_ACTION);
 
         keyboard.add(row1);
         keyboard.add(row2);
