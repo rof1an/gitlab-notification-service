@@ -12,5 +12,7 @@ public class UserDto {
 
     private String gitlabId;
 
+    private long telegramChatId;
+
     private UserRole role;
 }
