@@ -3,6 +3,7 @@ package com.notification.service.telegram_interactive;
 import com.notification.service.model.SessionType;
 import com.notification.service.telegram.TelegramNotificationBot;
 import com.notification.service.telegram_interactive.handler.InteractiveHandler;
+import com.notification.service.util.TelegramButtonLabels;
 import com.notification.service.util.TelegramKeyboardFactory;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -54,8 +55,7 @@ public class TelegramInteractiveManager {
     }
 
     public void processCallback(TelegramNotificationBot bot, String chatId, String callbackData) {
-        // TODO вынести строку, есть в другом классе такая же, также с похожими случаями
-        if (callbackData.equalsIgnoreCase("Отменить текущее действие")) {
+        if (callbackData.equalsIgnoreCase(TelegramButtonLabels.CANCEL_ACTION)) {
             cancelCurrentSession(chatId);
             bot.executeMessage(chatId, "Действие отменено.");
             return;

@@ -8,6 +8,7 @@ import com.notification.service.service.UserService;
 import com.notification.service.telegram.config.TelegramBotProperties;
 import com.notification.service.telegram.handler.CallbackNotificationHandler;
 import com.notification.service.telegram_interactive.TelegramInteractiveManager;
+import com.notification.service.util.TelegramButtonLabels;
 import com.notification.service.util.TelegramKeyboardFactory;
 import com.notification.service.util.TelegramMessageFormatter;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +42,6 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
 
     private final String START = "/start";
     private final String MENU = "/menu";
-    private final String CREATE_MR = "Создать МР";
-    private final String CREATE_THRESHOLD = "Создать Threshold";
 
     public TelegramNotificationBot(TelegramBotProperties telegramBotProperties,
                                    UserService userService,
@@ -82,10 +81,10 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
                     case MENU -> {
                         interactiveManager.showMenu(this, chatId);
                     }
-                    case CREATE_MR -> {
+                    case TelegramButtonLabels.CREATE_MR -> {
                         interactiveManager.handleAction(SessionType.MR_CREATION, this, chatId);
                     }
-                    case CREATE_THRESHOLD -> {
+                    case TelegramButtonLabels.CREATE_THRESHOLD -> {
                         interactiveManager.handleAction(SessionType.THRESHOLD_CREATING, this, chatId);
                     }
                     default -> {
