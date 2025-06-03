@@ -71,15 +71,22 @@ public class TaskService {
 
     public Task getTaskByUser(Long userId, UserRole role) {
         if (role == UserRole.DEVELOPER) {
-            return taskRepository.findByDeveloperId(userId);
+            return taskRepository.findByDeveloperId(userId)
+                    .orElseThrow(() -> new EntityNotFoundException("Developer not found with id = " + userId));
         } else if (role == UserRole.REVIEWER) {
-            return taskRepository.findByReviewerId(userId);
+            return taskRepository.findByReviewerId(userId)
+                    .orElseThrow(() -> new EntityNotFoundException("Developer not found with id = " + userId));
         }
         throw new IllegalArgumentException("Unsupported role: " + role);
     }
 
     public List<Task> getAllTasks() {
         return taskRepository.findAll();
+    }
+
+    public Task getTaskByLink(String link) {
+        return taskRepository.findTaskByLinkToMr(link)
+                .orElseThrow(() -> new EntityNotFoundException("Merge Request not found with link - " + link));
     }
 
     public Task updateTaskStatus(long id, TaskStatus status) {

@@ -4,7 +4,7 @@ import com.notification.service.dto.TaskDto;
 import com.notification.service.entity.User;
 import com.notification.service.mapper.UserMapper;
 import com.notification.service.service.UserService;
-import com.notification.service.telegram_interactive.model.MrModel;
+import com.notification.service.telegram_interactive.model.MergeRequestModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -23,7 +23,7 @@ public class WebhookService {
     private final RestTemplate restTemplate;
     private final UserMapper userMapper;
 
-    public TaskDto createMergeRequest(MrModel data) {
+    public TaskDto createMergeRequest(MergeRequestModel data) {
         User reviewer = userService.findById(data.getReviewerId());
         User developer = userService.findById(data.getDeveloperId());
 

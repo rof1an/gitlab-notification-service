@@ -3,9 +3,9 @@ package com.notification.service.telegram_interactive.model;
 import lombok.Data;
 
 @Data
-public class MrModel {
+public class ThresholdModel {
 
-    private String title;
+    private String mrTitle;
 
     private String linkToMr;
 
