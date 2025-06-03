@@ -75,7 +75,7 @@ public class TaskService {
                     .orElseThrow(() -> new EntityNotFoundException("Developer not found with id = " + userId));
         } else if (role == UserRole.REVIEWER) {
             return taskRepository.findByReviewerId(userId)
-                    .orElseThrow(() -> new EntityNotFoundException("Developer not found with id = " + userId));
+                    .orElseThrow(() -> new EntityNotFoundException("Reviewer not found with id = " + userId));
         }
         throw new IllegalArgumentException("Unsupported role: " + role);
     }
