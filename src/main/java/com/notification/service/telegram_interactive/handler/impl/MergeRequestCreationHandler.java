@@ -10,12 +10,12 @@ import com.notification.service.telegram_interactive.handler.InteractiveHandler;
 import com.notification.service.telegram_interactive.model.MergeRequestModel;
 import com.notification.service.telegram_interactive.model.session.MergeRequestCreationSession;
 import com.notification.service.telegram_interactive.service.MergeRequestSessionService;
+import com.notification.service.util.TelegramKeyboardFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.List;
 
@@ -85,17 +85,11 @@ public class MergeRequestCreationHandler implements InteractiveHandler {
     }
 
     private void createUserChooseButtons(TelegramNotificationBot bot, String chatId, List<User> users, String action) {
-        List<List<InlineKeyboardButton>> buttons = users.stream()
-                .map(user -> {
-                    InlineKeyboardButton button = new InlineKeyboardButton();
-                    button.setText(user.getUsername());
-                    button.setCallbackData(String.valueOf(user.getId()));
-                    return List.of(button);
-                })
-                .toList();
-
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.setKeyboard(buttons);
+        InlineKeyboardMarkup inlineKeyboardMarkup = TelegramKeyboardFactory.createSingleColumnKeyboard(
+                users,
+                User::getUsername,
+                user -> String.valueOf(user.getId())
+        );
 
         SendMessage sendMessage = new SendMessage(chatId, action);
         sendMessage.setReplyMarkup(inlineKeyboardMarkup);

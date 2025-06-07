@@ -9,17 +9,18 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 @Component
 public class TelegramKeyboardFactory {
 
-    public InlineKeyboardMarkup createSingleButtonKeyboard(String buttonText, NotificationType type, Long taskId) {
+    public static InlineKeyboardMarkup createSingleButtonKeyboard(String buttonText, NotificationType type, Long taskId) {
         InlineKeyboardButton button = new InlineKeyboardButton(buttonText);
         button.setCallbackData(type + ":" + taskId);
         return new InlineKeyboardMarkup(List.of(List.of(button)));
     }
 
-    public ReplyKeyboardMarkup createMainMenuKeyboard() {
+    public static ReplyKeyboardMarkup createMainMenuKeyboard() {
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         List<KeyboardRow> keyboard = new ArrayList<>();
 
@@ -41,5 +42,22 @@ public class TelegramKeyboardFactory {
         replyKeyboardMarkup.setKeyboard(keyboard);
         replyKeyboardMarkup.setResizeKeyboard(true);
         return replyKeyboardMarkup;
+    }
+
+    public static <T> InlineKeyboardMarkup createSingleColumnKeyboard(List<T> items,
+                                                               Function<T, String> textMapper,
+                                                               Function<T, String> callbackMapper) {
+        List<List<InlineKeyboardButton>> buttons = items.stream()
+                .map(item -> {
+                    InlineKeyboardButton button = new InlineKeyboardButton();
+                    button.setText(textMapper.apply(item));
+                    button.setCallbackData(callbackMapper.apply(item));
+                    return List.of(button);
+                })
+                .toList();
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(buttons);
+        return inlineKeyboardMarkup;
     }
 }

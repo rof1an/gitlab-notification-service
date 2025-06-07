@@ -43,8 +43,9 @@ public class TaskController {
 
     @PostMapping("/{taskId}/threshold")
     @Operation(summary = "Эмуляция создания threshold в MR")
-    public void thresholdTask(@PathVariable("taskId") Long taskId) {
-        taskService.notifyThresholdTask(taskId);
+    public TaskDto thresholdTask(@PathVariable("taskId") Long taskId) {
+        Task task = taskService.notifyThresholdTask(taskId);
+        return mapper.toDto(task);
     }
 
     @PostMapping("/{taskId}/accept-threshold")
