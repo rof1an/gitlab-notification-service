@@ -23,3 +23,8 @@ bot:
     ids: ${WHITELIST_IDS}
 api:
   base-url: http://localhost:8085/api/tasks
+logging:
+  level:
+    org.springframework.web: INFO
+    org.hibernate: INFO
+

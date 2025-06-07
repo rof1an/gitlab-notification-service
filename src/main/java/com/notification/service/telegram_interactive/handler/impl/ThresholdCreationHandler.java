@@ -1,30 +1,34 @@
 package com.notification.service.telegram_interactive.handler.impl;
 
+import com.notification.service.dto.TaskDto;
 import com.notification.service.entity.Task;
-import com.notification.service.model.NotificationType;
 import com.notification.service.model.SessionType;
 import com.notification.service.model.TaskStatus;
 import com.notification.service.repository.TaskRepository;
 import com.notification.service.telegram.TelegramNotificationBot;
+import com.notification.service.telegram_interactive.WebhookService;
 import com.notification.service.telegram_interactive.handler.InteractiveHandler;
 import com.notification.service.telegram_interactive.model.ThresholdModel;
 import com.notification.service.telegram_interactive.model.session.ThresholdCreationSession;
 import com.notification.service.telegram_interactive.service.ThresholdSessionService;
+import com.notification.service.util.TelegramKeyboardFactory;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ThresholdCreationHandler implements InteractiveHandler {
 
     private final ThresholdSessionService thresholdSessionService;
     private final TaskRepository taskRepository;
+    private final WebhookService webhookService;
 
     @Override
     public SessionType getSessionType() {
@@ -50,21 +54,13 @@ public class ThresholdCreationHandler implements InteractiveHandler {
 
                 thresholdModel.setMrTitle(selectedTask.getTitle());
                 thresholdModel.setLinkToMr(selectedTask.getLinkToMr());
+                thresholdModel.setDeveloperId(selectedTask.getDeveloper().getId());
+                thresholdModel.setReviewerId(selectedTask.getReviewer().getId());
 
-                String message = String.format("""
-                        Название: %s
-                        Ссылка: %s
-                        """, thresholdModel.getMrTitle(), thresholdModel.getLinkToMr());
-
-                bot.handleInteractiveCallback(
-                        chatId,
-                        message,
-                        selectedTaskId,
-                        NotificationType.SEND_REVIEWER_THRESHOLD_REQUEST_MESSAGE,
-                        "Уведомить ревьюера"
-                );
+                createThreshold(bot, chatId, thresholdModel);
                 session.setStep(ThresholdCreationSession.Step.COMPLETE);
             }
+            default -> bot.executeMessage(chatId, "Что-то пошло не так. Попробуйте заново.");
         }
     }
 
@@ -86,20 +82,24 @@ public class ThresholdCreationHandler implements InteractiveHandler {
 
     private void createMergeRequestsChooseButtons(TelegramNotificationBot bot, String chatId,
                                                   List<Task> tasks, String action) {
-        List<List<InlineKeyboardButton>> buttons = tasks.stream()
-                .map(task -> {
-                    InlineKeyboardButton button = new InlineKeyboardButton();
-                    button.setText(String.format("TITLE: %s | LINK: %s", task.getTitle(), task.getLinkToMr()));
-                    button.setCallbackData(String.valueOf(task.getId()));
-                    return List.of(button);
-                })
-                .toList();
-
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.setKeyboard(buttons);
+        InlineKeyboardMarkup inlineKeyboardMarkup = TelegramKeyboardFactory.createSingleColumnKeyboard(
+                tasks,
+                task -> String.format("TITLE: %s | LINK: %s", task.getTitle(), task.getLinkToMr()),
+                task -> String.valueOf(task.getId())
+        );
 
         SendMessage sendMessage = new SendMessage(chatId, action);
         sendMessage.setReplyMarkup(inlineKeyboardMarkup);
         bot.executeMessage(sendMessage);
+    }
+
+    private void createThreshold(TelegramNotificationBot bot, String chatId, ThresholdModel model) {
+        try {
+            TaskDto createdThreshold = webhookService.createThreshold(model);
+            bot.executeMessage(chatId, "Вы успешно создали Threshold для МР: " + createdThreshold.getLinkToMr());
+        } catch (Exception e) {
+            log.info("Error creating threshold", e);
+            bot.executeMessage(chatId, "Ошибка при создании Threshold. Попробуйте снова.");
+        }
     }
 }

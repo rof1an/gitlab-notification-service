@@ -16,10 +16,8 @@ import java.util.stream.Collectors;
 public class TelegramInteractiveManager {
 
     private final Map<SessionType, InteractiveHandler> handlersMap;
-    private final TelegramKeyboardFactory telegramKeyboardFactory;
 
-    public TelegramInteractiveManager(List<InteractiveHandler> handlers, TelegramKeyboardFactory telegramKeyboardFactory) {
-        this.telegramKeyboardFactory = telegramKeyboardFactory;
+    public TelegramInteractiveManager(List<InteractiveHandler> handlers) {
         this.handlersMap = handlers.stream()
                 .collect(Collectors.toMap(InteractiveHandler::getSessionType, handler -> handler));
     }
@@ -28,7 +26,7 @@ public class TelegramInteractiveManager {
         SendMessage message = SendMessage.builder()
                 .chatId(chatId)
                 .text("Выберите действие:")
-                .replyMarkup(telegramKeyboardFactory.createMainMenuKeyboard())
+                .replyMarkup(TelegramKeyboardFactory.createMainMenuKeyboard())
                 .build();
 
         bot.executeMessage(message);

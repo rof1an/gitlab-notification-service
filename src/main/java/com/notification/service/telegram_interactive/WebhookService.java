@@ -1,10 +1,13 @@
 package com.notification.service.telegram_interactive;
 
 import com.notification.service.dto.TaskDto;
+import com.notification.service.entity.Task;
 import com.notification.service.entity.User;
 import com.notification.service.mapper.UserMapper;
+import com.notification.service.service.TaskService;
 import com.notification.service.service.UserService;
 import com.notification.service.telegram_interactive.model.MergeRequestModel;
+import com.notification.service.telegram_interactive.model.ThresholdModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -20,6 +23,7 @@ public class WebhookService {
     private String apiBaseUrl;
 
     private final UserService userService;
+    private final TaskService taskService;
     private final RestTemplate restTemplate;
     private final UserMapper userMapper;
 
@@ -36,6 +40,29 @@ public class WebhookService {
 
         ResponseEntity<TaskDto> response = restTemplate.postForEntity(
                 apiBaseUrl,
+                new HttpEntity<>(taskDto),
+                TaskDto.class
+        );
+
+        return response.getBody();
+    }
+
+    public TaskDto createThreshold(ThresholdModel thresholdModel) {
+        Task taskByLink = taskService.getTaskByLink(thresholdModel.getLinkToMr());
+        User reviewer = userService.findById(thresholdModel.getReviewerId());
+        User developer = userService.findById(thresholdModel.getDeveloperId());
+
+        TaskDto taskDto = TaskDto.builder()
+                .title(thresholdModel.getMrTitle())
+                .linkToMr(thresholdModel.getLinkToMr())
+                .reviewer(userMapper.toDto(reviewer))
+                .developer(userMapper.toDto(developer))
+                .build();
+
+        String createThresholdUrl = String.format("%s/%d/threshold", apiBaseUrl, taskByLink.getId());
+
+        ResponseEntity<TaskDto> response = restTemplate.postForEntity(
+                createThresholdUrl,
                 new HttpEntity<>(taskDto),
                 TaskDto.class
         );

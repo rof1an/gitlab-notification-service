@@ -36,7 +36,6 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
     private final TelegramBotProperties telegramBotProperties;
     private final List<CallbackNotificationHandler> callbackHandlers;
     private final TelegramMessageFormatter telegramMessageFormatter;
-    private final TelegramKeyboardFactory keyboardFactory;
     private final UserService userService;
     private final TelegramInteractiveManager interactiveManager;
 
@@ -46,14 +45,12 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
     public TelegramNotificationBot(TelegramBotProperties telegramBotProperties,
                                    UserService userService,
                                    TelegramMessageFormatter telegramMessageFormatter,
-                                   TelegramKeyboardFactory keyboardFactory,
                                    List<CallbackNotificationHandler> callbackHandlers,
                                    TelegramInteractiveManager interactiveManager) {
         super(telegramBotProperties.getToken());
         this.telegramBotProperties = telegramBotProperties;
         this.userService = userService;
         this.telegramMessageFormatter = telegramMessageFormatter;
-        this.keyboardFactory = keyboardFactory;
         this.callbackHandlers = callbackHandlers;
         this.interactiveManager = interactiveManager;
     }
@@ -133,7 +130,7 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
 
     public void handleInteractiveCallback(String chatId, String text, Long taskId,
                                           NotificationType type, String buttonText) {
-        InlineKeyboardMarkup markup = keyboardFactory.createSingleButtonKeyboard(buttonText, type, taskId);
+        InlineKeyboardMarkup markup = TelegramKeyboardFactory.createSingleButtonKeyboard(buttonText, type, taskId);
         SendMessage message = new SendMessage(chatId, text);
         message.setReplyMarkup(markup);
         executeMessage(message);

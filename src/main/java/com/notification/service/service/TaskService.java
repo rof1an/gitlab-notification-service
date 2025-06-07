@@ -34,12 +34,13 @@ public class TaskService {
         }
     }
 
-    public void notifyThresholdTask(Long taskId) {
+    public Task notifyThresholdTask(Long taskId) {
         Task task = getTaskById(taskId);
 
         if (task.getStatus() != TaskStatus.CLOSED) {
             notificationService.notify(task, NotificationType.SEND_REVIEWER_THRESHOLD_REQUEST_MESSAGE);
         }
+        return task;
     }
 
     public void confirmThresholdTaskNotify(Long taskId) {
