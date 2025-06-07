@@ -84,6 +84,9 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
                     case TelegramButtonLabels.CREATE_THRESHOLD -> {
                         interactiveManager.handleAction(SessionType.THRESHOLD_CREATING, this, chatId);
                     }
+                    case TelegramButtonLabels.NOTIFY_THRESHOLD_CHANGE -> {
+                        interactiveManager.handleAction(SessionType.THRESHOLD_CHANGING, this, chatId);
+                    }
                     default -> {
                         defaultCommand(chatId);
                     }
@@ -113,7 +116,7 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
             return;
         }
 
-        String[] dataParts = parseCallbackDataParts(callbackQuery.getData());
+        String[] dataParts = parseCallbackDataParts(callbackQueryData);
         NotificationType incomingType = NotificationType.valueOf(dataParts[0]);
         Long incomingTaskId = Long.parseLong(dataParts[1]);
 

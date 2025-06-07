@@ -8,10 +8,12 @@ import com.notification.service.model.UserRole;
 import com.notification.service.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping(path = "api/tasks")
 @RequiredArgsConstructor
@@ -20,6 +22,7 @@ public class TaskController {
     private final TaskMapper mapper;
 
     private final TaskService taskService;
+    private final TaskMapper taskMapper;
 
     @PostMapping
     @Operation(summary = "Создать новый MR")
@@ -56,8 +59,9 @@ public class TaskController {
 
     @PostMapping("/{taskId}/fix")
     @Operation(summary = "Отправка изменения в МР по трешхолду")
-    public void sendNewFixOnThreshold(@PathVariable("taskId") Long taskId) {
-        taskService.sendNewFixOnThreshold(taskId);
+    public TaskDto sendNewFixOnThreshold(@PathVariable("taskId") Long taskId) {
+        Task task = taskService.sendNewFixOnThreshold(taskId);
+        return taskMapper.toDto(task);
     }
 
     @GetMapping

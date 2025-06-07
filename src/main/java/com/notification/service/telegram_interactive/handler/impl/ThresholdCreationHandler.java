@@ -10,7 +10,7 @@ import com.notification.service.telegram_interactive.WebhookService;
 import com.notification.service.telegram_interactive.handler.InteractiveHandler;
 import com.notification.service.telegram_interactive.model.ThresholdModel;
 import com.notification.service.telegram_interactive.model.session.ThresholdCreationSession;
-import com.notification.service.telegram_interactive.service.ThresholdSessionService;
+import com.notification.service.telegram_interactive.service.ThresholdCreationSessionService;
 import com.notification.service.util.TelegramKeyboardFactory;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ThresholdCreationHandler implements InteractiveHandler {
 
-    private final ThresholdSessionService thresholdSessionService;
+    private final ThresholdCreationSessionService thresholdCreationSessionService;
     private final TaskRepository taskRepository;
     private final WebhookService webhookService;
 
@@ -37,13 +37,13 @@ public class ThresholdCreationHandler implements InteractiveHandler {
 
     @Override
     public boolean isSessionInProgress(String chatId) {
-        ThresholdCreationSession session = thresholdSessionService.getSession(chatId);
+        ThresholdCreationSession session = thresholdCreationSessionService.getSession(chatId);
         return session != null && session.getStep() != ThresholdCreationSession.Step.COMPLETE;
     }
 
     @Override
     public void processCallback(TelegramNotificationBot bot, String chatId, String input) {
-        ThresholdCreationSession session = thresholdSessionService.getOrCreateSession(chatId);
+        ThresholdCreationSession session = thresholdCreationSessionService.getOrCreateSession(chatId);
         ThresholdModel thresholdModel = session.getThresholdModel();
 
         switch (session.getStep()) {
@@ -66,12 +66,12 @@ public class ThresholdCreationHandler implements InteractiveHandler {
 
     @Override
     public void cancelSession(String chatId) {
-        thresholdSessionService.clearSession(chatId);
+        thresholdCreationSessionService.clearSession(chatId);
     }
 
     @Override
     public void startSession(TelegramNotificationBot bot, String chatId) {
-        ThresholdCreationSession startedSession = thresholdSessionService.getOrCreateSession(chatId);
+        ThresholdCreationSession startedSession = thresholdCreationSessionService.getOrCreateSession(chatId);
         startedSession.setStep(ThresholdCreationSession.Step.SELECT_MERGE_REQUEST);
 
         List<Task> tasks = taskRepository.findAllByStatus(TaskStatus.REVIEW)
@@ -96,7 +96,7 @@ public class ThresholdCreationHandler implements InteractiveHandler {
     private void createThreshold(TelegramNotificationBot bot, String chatId, ThresholdModel model) {
         try {
             TaskDto createdThreshold = webhookService.createThreshold(model);
-            bot.executeMessage(chatId, "Вы успешно создали Threshold для МР: " + createdThreshold.getLinkToMr());
+            bot.executeMessage(chatId, "Вы успешно создали Threshold для МР: " + createdThreshold.getTitle());
         } catch (Exception e) {
             log.info("Error creating threshold", e);
             bot.executeMessage(chatId, "Ошибка при создании Threshold. Попробуйте снова.");
