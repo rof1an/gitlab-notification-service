@@ -60,9 +60,10 @@ public class TaskService {
         return taskRepository.save(task);
     }
 
-    public void sendNewFixOnThreshold(Long taskId) {
+    public Task sendNewFixOnThreshold(Long taskId) {
         Task task = getTaskById(taskId);
         notificationService.notify(task, NotificationType.SEND_DEVELOPER_THRESHOLD_FIX_REQUEST_MESSAGE);
+        return task;
     }
 
     public Task getTaskById(Long id) {

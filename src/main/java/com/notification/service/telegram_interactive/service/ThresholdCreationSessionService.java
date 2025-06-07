@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class ThresholdSessionService {
+public class ThresholdCreationSessionService {
 
     private final Map<String, ThresholdCreationSession> sessions = new ConcurrentHashMap<>();
 

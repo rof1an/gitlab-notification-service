@@ -69,4 +69,27 @@ public class WebhookService {
 
         return response.getBody();
     }
+
+    public TaskDto createThresholdChange(ThresholdModel thresholdModel){
+        Task taskByLink = taskService.getTaskByLink(thresholdModel.getLinkToMr());
+        User reviewer = userService.findById(thresholdModel.getReviewerId());
+        User developer = userService.findById(thresholdModel.getDeveloperId());
+
+        TaskDto taskDto = TaskDto.builder()
+                .title(thresholdModel.getMrTitle())
+                .linkToMr(thresholdModel.getLinkToMr())
+                .reviewer(userMapper.toDto(reviewer))
+                .developer(userMapper.toDto(developer))
+                .build();
+
+        String createThresholdUrl = String.format("%s/%d/fix", apiBaseUrl, taskByLink.getId());
+
+        ResponseEntity<TaskDto> response = restTemplate.postForEntity(
+                createThresholdUrl,
+                new HttpEntity<>(taskDto),
+                TaskDto.class
+        );
+
+        return response.getBody();
+    }
 }
