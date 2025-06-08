@@ -7,10 +7,10 @@ import com.notification.service.model.TaskStatus;
 import com.notification.service.repository.TaskRepository;
 import com.notification.service.telegram.TelegramNotificationBot;
 import com.notification.service.telegram_interactive.handler.InteractiveHandler;
-import com.notification.service.telegram_interactive.model.ThresholdModel;
-import com.notification.service.telegram_interactive.model.session.ThresholdCreationSession;
+import com.notification.service.telegram_interactive.model.MergeRequestModel;
+import com.notification.service.telegram_interactive.model.session.MergeRequestMergingSession;
 import com.notification.service.telegram_interactive.service.WebhookService;
-import com.notification.service.telegram_interactive.service.sessionService.ThresholdCreationSessionService;
+import com.notification.service.telegram_interactive.service.sessionService.MergeRequestMergingSessionService;
 import com.notification.service.util.TelegramKeyboardFactory;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -24,27 +24,27 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ThresholdCreationHandler implements InteractiveHandler {
+public class MergeRequestMergingHandler implements InteractiveHandler {
 
-    private final ThresholdCreationSessionService thresholdCreationSessionService;
     private final TaskRepository taskRepository;
     private final WebhookService webhookService;
+    private final MergeRequestMergingSessionService sessionService;
 
     @Override
     public SessionType getSessionType() {
-        return SessionType.THRESHOLD_CREATING;
+        return SessionType.MERGE_MR;
     }
 
     @Override
     public boolean isSessionInProgress(String chatId) {
-        ThresholdCreationSession session = thresholdCreationSessionService.getSession(chatId);
-        return session != null && session.getStep() != ThresholdCreationSession.Step.COMPLETE;
+        MergeRequestMergingSession session = sessionService.getSession(chatId);
+        return session != null && session.getStep() != MergeRequestMergingSession.Step.COMPLETE;
     }
 
     @Override
     public void processCallback(TelegramNotificationBot bot, String chatId, String input) {
-        ThresholdCreationSession session = thresholdCreationSessionService.getOrCreateSession(chatId);
-        ThresholdModel thresholdModel = session.getThresholdModel();
+        MergeRequestMergingSession session = sessionService.getOrCreateSession(chatId);
+        MergeRequestModel mergeRequestModel = session.getMergeRequestModel();
 
         switch (session.getStep()) {
             case SELECT_MERGE_REQUEST -> {
@@ -52,36 +52,46 @@ public class ThresholdCreationHandler implements InteractiveHandler {
                 Task selectedTask = taskRepository.findById(selectedTaskId)
                         .orElseThrow(() -> new EntityNotFoundException("Task not found with id: " + selectedTaskId));
 
-                thresholdModel.setMrTitle(selectedTask.getTitle());
-                thresholdModel.setLinkToMr(selectedTask.getLinkToMr());
-                thresholdModel.setDeveloperId(selectedTask.getDeveloper().getId());
-                thresholdModel.setReviewerId(selectedTask.getReviewer().getId());
+                mergeRequestModel.setTitle(selectedTask.getTitle());
+                mergeRequestModel.setLinkToMr(selectedTask.getLinkToMr());
+                mergeRequestModel.setDeveloperId(selectedTask.getDeveloper().getId());
+                mergeRequestModel.setReviewerId(selectedTask.getReviewer().getId());
 
-                createThreshold(bot, chatId, thresholdModel);
-                session.setStep(ThresholdCreationSession.Step.COMPLETE);
+                createMergeRequestMerging(bot, chatId, mergeRequestModel);
+                session.setStep(MergeRequestMergingSession.Step.COMPLETE);
             }
             default -> bot.executeMessage(chatId, "Что-то пошло не так. Попробуйте заново.");
         }
     }
 
+    public void createMergeRequestMerging(TelegramNotificationBot bot, String chatId, MergeRequestModel model) {
+        try {
+            TaskDto createdTask = webhookService.createMergeRequestMerging(model);
+            bot.executeMessage(chatId, "Вы успешно смержили МР: " + createdTask.getTitle());
+        } catch (Exception e) {
+            log.debug("Error creating merge request", e);
+            bot.executeMessage(chatId, "Ошибка при мерже MР. Попробуйте снова.");
+        }
+    }
+
     @Override
     public void cancelSession(String chatId) {
-        thresholdCreationSessionService.clearSession(chatId);
+        sessionService.clearSession(chatId);
     }
 
     @Override
     public void startSession(TelegramNotificationBot bot, String chatId) {
-        ThresholdCreationSession startedSession = thresholdCreationSessionService.getOrCreateSession(chatId);
-        startedSession.setStep(ThresholdCreationSession.Step.SELECT_MERGE_REQUEST);
+        MergeRequestMergingSession session = sessionService.getOrCreateSession(chatId);
+        session.setStep(MergeRequestMergingSession.Step.SELECT_MERGE_REQUEST);
 
         List<Task> tasks = taskRepository.findAllByStatus(TaskStatus.REVIEW)
                 .orElseThrow(() -> new EntityNotFoundException("Task not found with status - REVIEW"));
 
-        createMergeRequestsChooseButtons(bot, chatId, tasks, "Выберите МР для создания Threshold:");
+        createMergeRequestsMergingChooseButtons(bot, chatId, tasks, "Выберите МР для мержа:");
     }
 
-    private void createMergeRequestsChooseButtons(TelegramNotificationBot bot, String chatId,
-                                                  List<Task> tasks, String action) {
+    private void createMergeRequestsMergingChooseButtons(TelegramNotificationBot bot, String chatId,
+                                                         List<Task> tasks, String action) {
         InlineKeyboardMarkup inlineKeyboardMarkup = TelegramKeyboardFactory.createSingleColumnKeyboard(
                 tasks,
                 task -> String.format("TITLE: %s | LINK: %s", task.getTitle(), task.getLinkToMr()),
@@ -91,15 +101,5 @@ public class ThresholdCreationHandler implements InteractiveHandler {
         SendMessage sendMessage = new SendMessage(chatId, action);
         sendMessage.setReplyMarkup(inlineKeyboardMarkup);
         bot.executeMessage(sendMessage);
-    }
-
-    private void createThreshold(TelegramNotificationBot bot, String chatId, ThresholdModel model) {
-        try {
-            TaskDto createdThreshold = webhookService.createThreshold(model);
-            bot.executeMessage(chatId, "Вы успешно создали Threshold для МР: " + createdThreshold.getTitle());
-        } catch (Exception e) {
-            log.info("Error creating threshold", e);
-            bot.executeMessage(chatId, "Ошибка при создании Threshold. Попробуйте снова.");
-        }
     }
 }

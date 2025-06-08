@@ -5,11 +5,11 @@ import com.notification.service.entity.User;
 import com.notification.service.model.SessionType;
 import com.notification.service.service.UserService;
 import com.notification.service.telegram.TelegramNotificationBot;
-import com.notification.service.telegram_interactive.WebhookService;
 import com.notification.service.telegram_interactive.handler.InteractiveHandler;
 import com.notification.service.telegram_interactive.model.MergeRequestModel;
 import com.notification.service.telegram_interactive.model.session.MergeRequestCreationSession;
-import com.notification.service.telegram_interactive.service.MergeRequestSessionService;
+import com.notification.service.telegram_interactive.service.WebhookService;
+import com.notification.service.telegram_interactive.service.sessionService.MergeRequestCreationSessionService;
 import com.notification.service.util.TelegramKeyboardFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,11 +26,11 @@ public class MergeRequestCreationHandler implements InteractiveHandler {
 
     private final UserService userService;
     private final WebhookService webhookService;
-    private final MergeRequestSessionService mergeRequestSessionService;
+    private final MergeRequestCreationSessionService sessionService;
 
     @Override
     public void processCallback(TelegramNotificationBot bot, String chatId, String input) {
-        MergeRequestCreationSession session = mergeRequestSessionService.getOrCreateSession(chatId);
+        MergeRequestCreationSession session = sessionService.getOrCreateSession(chatId);
         MergeRequestModel sessionMergeRequestModel = session.getMergeRequestModel();
         List<User> reviewers = userService.findAllByReviewerRole();
         List<User> developers = userService.findAllByDeveloperRole();
@@ -55,7 +55,6 @@ public class MergeRequestCreationHandler implements InteractiveHandler {
                 sessionMergeRequestModel.setDeveloperId(Long.valueOf(input));
                 session.setStep(MergeRequestCreationSession.Step.COMPLETE);
                 createMergeRequest(bot, chatId, sessionMergeRequestModel);
-                mergeRequestSessionService.clearSession(chatId);
             }
             default -> bot.executeMessage(chatId, "Что-то пошло не так. Попробуйте заново.");
         }
@@ -63,19 +62,19 @@ public class MergeRequestCreationHandler implements InteractiveHandler {
 
     @Override
     public void cancelSession(String chatId) {
-        mergeRequestSessionService.clearSession(chatId);
+        sessionService.clearSession(chatId);
     }
 
     @Override
     public void startSession(TelegramNotificationBot bot, String chatId) {
-        MergeRequestCreationSession startedSession = mergeRequestSessionService.getOrCreateSession(chatId);
+        MergeRequestCreationSession startedSession = sessionService.getOrCreateSession(chatId);
         startedSession.setStep(MergeRequestCreationSession.Step.TITLE);
         bot.executeMessage(chatId, "Введите название МР:");
     }
 
     @Override
     public boolean isSessionInProgress(String chatId) {
-        MergeRequestCreationSession session = mergeRequestSessionService.getSession(chatId);
+        MergeRequestCreationSession session = sessionService.getSession(chatId);
         return session != null && session.getStep() != MergeRequestCreationSession.Step.COMPLETE;
     }
 
@@ -102,7 +101,7 @@ public class MergeRequestCreationHandler implements InteractiveHandler {
             bot.executeMessage(chatId, "Вы успешно создали МР: " + createdTask.getTitle());
         } catch (Exception e) {
             log.debug("Error creating merge request", e);
-            bot.executeMessage(chatId, "Ошибка при создании MR. Попробуйте снова.");
+            bot.executeMessage(chatId, "Ошибка при создании MР. Попробуйте снова.");
         }
     }
 }

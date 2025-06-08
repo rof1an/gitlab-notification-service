@@ -1,4 +1,4 @@
-package com.notification.service.telegram_interactive.service;
+package com.notification.service.telegram_interactive.service.sessionService;
 
 import com.notification.service.telegram_interactive.model.MergeRequestModel;
 import com.notification.service.telegram_interactive.model.session.MergeRequestCreationSession;
@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class MergeRequestSessionService {
+public class MergeRequestCreationSessionService {
 
     private final Map<String, MergeRequestCreationSession> sessions = new ConcurrentHashMap<>();
 

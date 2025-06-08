@@ -25,14 +25,7 @@ public class DeveloperThresholdFixConfirmationHandler implements CallbackNotific
         String reviewerChatId = String.valueOf(task.getReviewer().getTelegramChatId());
         String messageText = telegramMessageFormatter.formatReviewerNewFixOnThreshold(task);
 
-//        notificationBot.executeMessage(reviewerChatId, messageText);
-        notificationBot.handleInteractiveCallback(
-                reviewerChatId,
-                messageText,
-                taskId,
-                getNotificationType(),
-                "Принять"
-        );
+        notificationBot.executeMessage(reviewerChatId, messageText);
         taskService.updateTaskStatus(taskId, TaskStatus.REVIEW);
 
         notificationBot.executeMessage(

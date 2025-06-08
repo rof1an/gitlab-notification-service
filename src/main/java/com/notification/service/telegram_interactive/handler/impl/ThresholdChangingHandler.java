@@ -1,15 +1,16 @@
 package com.notification.service.telegram_interactive.handler.impl;
 
+import com.notification.service.dto.TaskDto;
 import com.notification.service.entity.Task;
 import com.notification.service.model.SessionType;
 import com.notification.service.model.TaskStatus;
 import com.notification.service.repository.TaskRepository;
 import com.notification.service.telegram.TelegramNotificationBot;
-import com.notification.service.telegram_interactive.WebhookService;
 import com.notification.service.telegram_interactive.handler.InteractiveHandler;
 import com.notification.service.telegram_interactive.model.ThresholdModel;
 import com.notification.service.telegram_interactive.model.session.ThresholdChangingSession;
-import com.notification.service.telegram_interactive.service.ThresholdChangingService;
+import com.notification.service.telegram_interactive.service.WebhookService;
+import com.notification.service.telegram_interactive.service.sessionService.ThresholdChangingService;
 import com.notification.service.util.TelegramKeyboardFactory;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -77,7 +78,7 @@ public class ThresholdChangingHandler implements InteractiveHandler {
         List<Task> tasks = taskRepository.findAllByStatus(needFixesStatus)
                 .orElseThrow(() -> new EntityNotFoundException("Tasks not found with status = " + needFixesStatus));
 
-        createMergeRequestsChooseButtons(bot, chatId, tasks, "Выбери МР для уведомления об изменении:");
+        createMergeRequestsChooseButtons(bot, chatId, tasks, "Выберите МР для уведомления об изменении:");
     }
 
     private void createMergeRequestsChooseButtons(TelegramNotificationBot bot, String chatId,
@@ -95,7 +96,8 @@ public class ThresholdChangingHandler implements InteractiveHandler {
 
     private void createThresholdChange(TelegramNotificationBot bot, String chatId, ThresholdModel model) {
         try {
-            webhookService.createThresholdChange(model);
+            TaskDto thresholdChange = webhookService.createThresholdChange(model);
+            bot.executeMessage(chatId, "Вы успешно создали фикс для МР: " + thresholdChange.getTitle());
         } catch (Exception e) {
             log.info("Error creating threshold", e);
             bot.executeMessage(chatId, "Ошибка при уведомлении об изменении Threshold. Попробуйте снова.");

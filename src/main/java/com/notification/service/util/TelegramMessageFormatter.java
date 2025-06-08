@@ -10,7 +10,8 @@ public class TelegramMessageFormatter {
 
     public String formatDeveloperMrReviewRequestMessage(Task task) {
         return String.format("""
-                        Новый МР: %s
+                        Отслежен новый МР!
+                        Название: %s
                         Ссылка: %s
                         Reviewer: %s
                         Подтвердите отправку ревьюеру""",
@@ -19,14 +20,16 @@ public class TelegramMessageFormatter {
 
     public String formatReviewerNewMrMessage(Task task) {
         return String.format("""
-                        Новая задача на ревью: %s
+                        Новый МР на ревью:!
+                        Название МР: %s
                         Ссылка: %s""",
                 task.getTitle(), task.getLinkToMr());
     }
 
     public String formatDeveloperMergedMrMessage(Task task) {
         return String.format("""
-                        Ваш МР был успешно смержен!: %s
+                        Ваш МР был успешно смержен!
+                        Название: %s
                         Ссылка: %s
                         Reviewer: %s""",
                 task.getTitle(), task.getLinkToMr(), task.getReviewer().getUsername());
@@ -34,8 +37,8 @@ public class TelegramMessageFormatter {
 
     public String reviewerThresholdOnMrRequestMessage(Task task) {
         return String.format("""
-                        Отслежен новый threshold. 
-                        МР: %s
+                        Отслежен новый threshold!
+                        Название МР: %s
                         Ссылка: %s
                         Developer: %s
                         Подтвердите отправку девелоперу""",
@@ -44,7 +47,7 @@ public class TelegramMessageFormatter {
 
     public String developerNewFixOnThresholdRequestMessage(Task task) {
         return String.format("""
-                        Отслежено новое изменение на threshold
+                        Отслежено новое изменение на threshold!
                         Название МР: %s
                         Ссылка: %s
                         Reviewer: %s
@@ -55,7 +58,8 @@ public class TelegramMessageFormatter {
 
     public String formatReviewerNotificationMessage(Task task) {
         return String.format("""
-                        Новый МР на проверку: %s
+                        Отслежен новый МР на проверку! 
+                        Название: %s
                         Ссылка: %s
                         Developer: %s
                         Reviewer: %s
@@ -69,7 +73,8 @@ public class TelegramMessageFormatter {
 
     public String formatDeveloperNewThresholdMessage(Task task) {
         return String.format("""
-                        Новый threshold в МР: %s
+                        Отслежен новый threshold в МР!
+                        Название МР: %s
                         Нужны исправления.
                         Ссылка: %s
                         Developer: %s
@@ -84,7 +89,8 @@ public class TelegramMessageFormatter {
 
     public String formatReviewerNewFixOnThreshold(Task task) {
         return String.format("""
-                        Новое изменение по threshold в МР: %s
+                        Новое изменение по threshold в МР!
+                        Название МР: %s
                         Ссылка: %s
                         Developer: %s
                         Reviewer: %s
