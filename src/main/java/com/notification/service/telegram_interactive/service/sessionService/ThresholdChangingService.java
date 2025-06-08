@@ -1,4 +1,4 @@
-package com.notification.service.telegram_interactive.service;
+package com.notification.service.telegram_interactive.service.sessionService;
 
 import com.notification.service.telegram_interactive.model.ThresholdModel;
 import com.notification.service.telegram_interactive.model.session.ThresholdChangingSession;

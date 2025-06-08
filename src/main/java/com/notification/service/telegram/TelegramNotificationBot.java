@@ -87,6 +87,9 @@ public class TelegramNotificationBot extends TelegramLongPollingBot {
                     case TelegramButtonLabels.NOTIFY_THRESHOLD_CHANGE -> {
                         interactiveManager.handleAction(SessionType.THRESHOLD_CHANGING, this, chatId);
                     }
+                    case TelegramButtonLabels.MERGE_MR -> {
+                        interactiveManager.handleAction(SessionType.MERGE_MR, this, chatId);
+                    }
                     default -> {
                         defaultCommand(chatId);
                     }
