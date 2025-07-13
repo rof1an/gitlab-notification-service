@@ -21,7 +21,7 @@ public class NotificationService {
 
     private final TelegramStub telegramStub;
 
-    public void notify(Task task, NotificationType type) {
+    public void createNotification(Task task, NotificationType type) {
         Notification notification = notificationFactory.createNotification(task, type);
         notificationRepository.save(notification);
     }
@@ -36,5 +36,9 @@ public class NotificationService {
 
     public void deleteNotificationById(Long notificationId) {
         notificationRepository.deleteById(notificationId);
+    }
+
+    public boolean existsForTask(Task task) {
+        return notificationRepository.existsByTaskId(task.getId());
     }
 }

@@ -26,8 +26,9 @@ public class NotificationFactory {
             case SEND_DEVELOPER_NEW_MR_REQUEST_MESSAGE -> messageFormatter.formatDeveloperMrReviewRequestMessage(task);
             case SEND_REVIEWER_NEW_MR_MESSAGE -> messageFormatter.formatReviewerNewMrMessage(task);
             case SEND_DEVELOPER_MERGED_MR_MESSAGE -> messageFormatter.formatDeveloperMergedMrMessage(task);
-            case SEND_REVIEWER_THRESHOLD_REQUEST_MESSAGE -> messageFormatter.reviewerThresholdOnMrRequestMessage(task);
-            case SEND_DEVELOPER_THRESHOLD_FIX_REQUEST_MESSAGE -> messageFormatter.developerNewFixOnThresholdRequestMessage(task);
+            case SEND_REVIEWER_THRESHOLD_REQUEST_MESSAGE -> messageFormatter.formatReviewerThresholdOnMrRequestMessage(task);
+            case SEND_DEVELOPER_THRESHOLD_FIX_REQUEST_MESSAGE -> messageFormatter.formatDeveloperNewFixOnThresholdRequestMessage(task);
+            case REMIND_REVIEWER_UNCHECKED_MR -> messageFormatter.formatActiveMergeRequestRemind(task);
         };
     }
 }

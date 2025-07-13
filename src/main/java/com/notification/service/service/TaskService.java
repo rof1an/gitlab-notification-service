@@ -22,7 +22,7 @@ public class TaskService {
     public Task createTask(Task task) {
         task.setStatus(TaskStatus.OPEN);
         Task savedTask = taskRepository.save(task);
-        notificationService.notify(task, NotificationType.SEND_DEVELOPER_NEW_MR_REQUEST_MESSAGE);
+        notificationService.createNotification(task, NotificationType.SEND_DEVELOPER_NEW_MR_REQUEST_MESSAGE);
         return savedTask;
     }
 
@@ -30,7 +30,7 @@ public class TaskService {
         Task task = getTaskById(taskId);
 
         if (task.getStatus() == TaskStatus.OPEN) {
-            notificationService.notify(task, NotificationType.SEND_REVIEWER_NEW_MR_MESSAGE);
+            notificationService.createNotification(task, NotificationType.SEND_REVIEWER_NEW_MR_MESSAGE);
         }
     }
 
@@ -38,7 +38,7 @@ public class TaskService {
         Task task = getTaskById(taskId);
 
         if (task.getStatus() != TaskStatus.CLOSED) {
-            notificationService.notify(task, NotificationType.SEND_REVIEWER_THRESHOLD_REQUEST_MESSAGE);
+            notificationService.createNotification(task, NotificationType.SEND_REVIEWER_THRESHOLD_REQUEST_MESSAGE);
         }
         return task;
     }
@@ -56,19 +56,23 @@ public class TaskService {
         Task task = getTaskById(id);
         task.setStatus(TaskStatus.CLOSED);
 
-        notificationService.notify(task, NotificationType.SEND_DEVELOPER_MERGED_MR_MESSAGE);
+        notificationService.createNotification(task, NotificationType.SEND_DEVELOPER_MERGED_MR_MESSAGE);
         return taskRepository.save(task);
     }
 
     public Task sendNewFixOnThreshold(Long taskId) {
         Task task = getTaskById(taskId);
-        notificationService.notify(task, NotificationType.SEND_DEVELOPER_THRESHOLD_FIX_REQUEST_MESSAGE);
+        notificationService.createNotification(task, NotificationType.SEND_DEVELOPER_THRESHOLD_FIX_REQUEST_MESSAGE);
         return task;
     }
 
     public Task getTaskById(Long id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Task with id " + id + " not found"));
+    }
+
+    public List<Task> getTasksByStatuses(List<TaskStatus> taskStatuses){
+        return taskRepository.findAllByStatusIn(taskStatuses);
     }
 
     public Task getTaskByUser(Long userId, UserRole role) {
