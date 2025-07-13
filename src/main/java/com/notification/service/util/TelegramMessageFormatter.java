@@ -35,7 +35,7 @@ public class TelegramMessageFormatter {
                 task.getTitle(), task.getLinkToMr(), task.getReviewer().getUsername());
     }
 
-    public String reviewerThresholdOnMrRequestMessage(Task task) {
+    public String formatReviewerThresholdOnMrRequestMessage(Task task) {
         return String.format("""
                         Отслежен новый threshold!
                         Название МР: %s
@@ -45,7 +45,7 @@ public class TelegramMessageFormatter {
                 task.getTitle(), task.getLinkToMr(), task.getDeveloper().getUsername());
     }
 
-    public String developerNewFixOnThresholdRequestMessage(Task task) {
+    public String formatDeveloperNewFixOnThresholdRequestMessage(Task task) {
         return String.format("""
                         Отслежено новое изменение на threshold!
                         Название МР: %s
@@ -102,11 +102,20 @@ public class TelegramMessageFormatter {
         );
     }
 
+    public String formatActiveMergeRequestRemind(Task task) {
+        return String.format("""
+                    У вас есть непроверенный МР!
+                    Ссылка: %s
+                    Developer: %s
+                    Reviewer: %s
+                """, task.getLinkToMr(), task.getDeveloper().getUsername(), task.getReviewer().getUsername());
+    }
+
     public String startCommand(Update update) {
         return String.format("""
                         Добро пожаловать в бот, %s.
                         Здесь можно увидеть список МР.
-                                       
+                        
                         Команды для использования:
                         /start - запуск бота
                         /menu - меню взаимодействия

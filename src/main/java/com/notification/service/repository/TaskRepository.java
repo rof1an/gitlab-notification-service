@@ -18,4 +18,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     Optional<Task> findTaskByLinkToMr(String link);
 
     Optional<List<Task>> findAllByStatus(TaskStatus status);
+
+    List<Task> findAllByStatusIn(List<TaskStatus> status);
 }
